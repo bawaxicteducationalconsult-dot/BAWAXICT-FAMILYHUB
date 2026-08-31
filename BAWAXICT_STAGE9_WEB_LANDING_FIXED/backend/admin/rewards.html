@@ -1,0 +1,373 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAWAXICT | Admin Notifications</title>
+<link rel="stylesheet" href="../css/bawaxict.css">
+<style>
+body{background:#eef5f1}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.top img{height:40px}
+.badge{background:var(--danger,#b7372d);color:#fff;font-weight:900;font-size:12px;border-radius:999px;padding:4px 10px;display:none}
+.badge.show{display:inline-block}
+.gate{max-width:380px;margin:60px auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px;box-shadow:var(--shadow)}
+.gate input{width:100%;padding:12px;border:1px solid #ccd5d2;border-radius:9px;margin:10px 0}
+.gate button{width:100%;padding:12px;border:0;border-radius:9px;background:var(--green);color:#fff;font-weight:800;cursor:pointer}
+.gate .err{color:#b33;font-size:12px;min-height:16px}
+.section-tabs{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+.section-tabs button{position:relative;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 16px;font-weight:800;font-size:12px;cursor:pointer;color:var(--muted)}
+.section-tabs button.active{background:var(--green);color:#fff;border-color:var(--green)}
+.section-tabs button .n{margin-left:6px;background:var(--danger,#b7372d);color:#fff;border-radius:999px;padding:1px 7px;font-size:10px;display:none}
+.section-tabs button .n.show{display:inline-block}
+.subtabs{display:flex;gap:8px;margin:6px 0 14px}
+.subtabs button{border:1px solid var(--line);background:#f7faf8;border-radius:999px;padding:6px 12px;font-weight:700;font-size:11px;cursor:pointer;color:var(--muted)}
+.subtabs button.active{background:var(--soft);color:var(--green);border-color:var(--green)}
+.row{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.row .who{font-weight:900}
+.row .meta{font-size:11px;color:var(--muted);margin-top:3px}
+.row .detail{font-size:13px;margin-top:6px;line-height:1.5;white-space:pre-wrap}
+.row .flagged-text{font-size:12px;margin-top:6px;background:#fff1f1;border:1px solid #ffd2ce;color:#7a1f18;padding:8px 10px;border-radius:10px;white-space:pre-wrap}
+.pill{font-size:10px;font-weight:800;border-radius:999px;padding:3px 9px;background:#fff3cd;color:#6b5300}
+.pill.done{background:#d9fdd3;color:#075e54}
+.pill.online{background:#e7f5ee;color:var(--green)}
+.pill.cat{background:#e7f0ff;color:#274b8f}
+.actions{display:flex;gap:8px}
+.actions button{border:0;border-radius:10px;padding:9px 13px;font-weight:800;font-size:12px;cursor:pointer;background:var(--green);color:#fff}
+.actions button.ghost{background:#fff;color:var(--muted);border:1px solid var(--line)}
+.empty{text-align:center;color:var(--muted);padding:40px;background:#fff;border-radius:16px;border:1px solid var(--line)}
+.modal{position:fixed;inset:0;background:#0007;display:none;place-items:center;padding:16px;z-index:50}
+.modal.show{display:grid}
+.modal .card{background:#fff;border-radius:18px;padding:20px;max-width:420px;width:100%}
+.modal textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:80px;margin:10px 0;font-family:inherit}
+.modal .btns{display:flex;gap:8px;justify-content:flex-end}
+.modal .btns button{border:0;border-radius:9px;padding:9px 14px;font-weight:800;cursor:pointer}
+.modal .cancel{background:#eee;color:#333}
+.modal .confirm{background:var(--green);color:#fff}
+.refresh-note{font-size:11px;color:var(--muted);margin:10px 0}
+.notif-toggle{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;color:var(--green);cursor:pointer}
+</style></head>
+<body>
+<div id="gate" class="gate">
+  <img src="../assets/bawaxict-logo.png" alt="BAWAX ICT" style="height:40px;margin-bottom:8px">
+  <h2 style="margin:6px 0">Admin Notifications</h2>
+  <p class="muted">Enter the admin key from <code>admin_key.txt</code>.</p>
+  <input id="keyInput" type="password" placeholder="Admin key" autofocus>
+  <button id="enterBtn">Open Dashboard</button>
+  <div class="err" id="gateErr"></div>
+</div>
+
+<div class="wrap" id="dash" style="display:none">
+  <div class="top">
+    <div style="display:flex;align-items:center;gap:10px">
+      <img src="../assets/bawaxict-logo.png" alt="BAWAX ICT">
+      <div>
+        <strong>Admin Notifications</strong>
+        <div class="refresh-note">Auto-refreshes every 15s • <span id="pendingLabel">0 pending</span></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-outline" id="returnPortalBtn" type="button" style="padding:9px 14px;font-size:12px">← Return to Portal</button>
+      <button class="notif-toggle" id="notifToggle" type="button">🔔 Enable browser alerts</button>
+      <span class="badge" id="badge">0 NEW</span>
+    </div>
+  </div>
+
+  <div class="section-tabs">
+    <button id="tabWinners" class="active" type="button">🏆 Reward Winners<span class="n" id="nWinners"></span></button>
+    <button id="tabReports" type="button">🚩 Reported Issues<span class="n" id="nReports"></span></button>
+    <button id="tabFlags" type="button">🚫 Filtered Messages<span class="n" id="nFlags"></span></button>
+    <button id="tabSkills" type="button">🧰 Skill Hub<span class="n" id="nSkills"></span></button>
+  </div>
+
+  <div id="panelWinners">
+    <div class="subtabs">
+      <button id="wPending" class="active" type="button">Pending</button>
+      <button id="wAll" type="button">All history</button>
+    </div>
+    <div id="listWinners"></div>
+  </div>
+
+  <div id="panelReports" style="display:none">
+    <div class="subtabs">
+      <button id="rOpen" class="active" type="button">Open</button>
+      <button id="rAll" type="button">All history</button>
+    </div>
+    <div id="listReports"></div>
+  </div>
+
+  <div id="panelFlags" style="display:none">
+    <div class="subtabs">
+      <button id="fUnreviewed" class="active" type="button">Unreviewed</button>
+      <button id="fAll" type="button">All history</button>
+    </div>
+    <p class="muted" style="margin:0 0 10px">Messages users tried to send that the abuse filter blocked before they ever reached Community Chat. Nothing here was ever visible to other members.</p>
+    <div id="listFlags"></div>
+  </div>
+
+  <div id="panelSkills" style="display:none">
+    <div class="subtabs">
+      <button id="sPending" class="active" type="button">Pending</button>
+      <button id="sVerified" type="button">Verified</button>
+      <button id="sAll" type="button">All history</button>
+    </div>
+    <p class="muted" style="margin:0 0 10px">People who registered on the "Skill Hub" page to say what they can do (repairs, tutoring, errands, etc). Verify the ones you've confirmed are genuine so they get a ✅ badge — everyone else still shows, but with a "not verified, deal at your own risk" note.</p>
+    <div id="listSkills"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="card">
+    <h3 style="margin:0 0 6px" id="modalTitle">Mark reward as sent</h3>
+    <p class="muted" style="margin:0" id="modalWho"></p>
+    <p class="muted" id="modalHint">Generate the voucher in MikroTik User Manager first, then paste the code/PIN below — it is delivered straight into the user's chat.</p>
+    <textarea id="modalNote" placeholder="e.g. Voucher code: 4F82-1GB (valid 24h)"></textarea>
+    <div class="btns">
+      <button class="cancel" id="modalCancel" type="button">Cancel</button>
+      <button class="confirm" id="modalConfirm" type="button">Confirm sent</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="msgModal">
+  <div class="card" style="max-width:480px">
+    <h3 style="margin:0 0 4px" id="msgModalWho">Message thread</h3>
+    <p class="muted" style="margin:0 0 10px">Ask verification questions here and request the ₦1,500 activation fee before granting a badge. This is private — the registrant reads and replies from their own "Message the Admin" page (skill-status.html), not the public directory.</p>
+    <div id="msgThread" style="max-height:280px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:10px;background:#f7faf8;margin-bottom:10px"></div>
+    <textarea id="msgInput" placeholder="e.g. Hi, please confirm your address and send proof of the ₦1,500 activation fee." style="min-height:60px"></textarea>
+    <div class="btns">
+      <button class="cancel" id="msgModalCancel" type="button">Close</button>
+      <button class="confirm" id="msgModalSend" type="button">Send message</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const gate=document.getElementById('gate'),dash=document.getElementById('dash'),keyInput=document.getElementById('keyInput'),
+enterBtn=document.getElementById('enterBtn'),gateErr=document.getElementById('gateErr'),
+badge=document.getElementById('badge'),pendingLabel=document.getElementById('pendingLabel'),
+notifToggle=document.getElementById('notifToggle'),
+tabWinners=document.getElementById('tabWinners'),tabReports=document.getElementById('tabReports'),tabFlags=document.getElementById('tabFlags'),tabSkills=document.getElementById('tabSkills'),
+panelWinners=document.getElementById('panelWinners'),panelReports=document.getElementById('panelReports'),panelFlags=document.getElementById('panelFlags'),panelSkills=document.getElementById('panelSkills'),
+listWinners=document.getElementById('listWinners'),listReports=document.getElementById('listReports'),listFlags=document.getElementById('listFlags'),listSkills=document.getElementById('listSkills'),
+nWinners=document.getElementById('nWinners'),nReports=document.getElementById('nReports'),nFlags=document.getElementById('nFlags'),nSkills=document.getElementById('nSkills'),
+wPending=document.getElementById('wPending'),wAll=document.getElementById('wAll'),
+rOpen=document.getElementById('rOpen'),rAll=document.getElementById('rAll'),
+fUnreviewed=document.getElementById('fUnreviewed'),fAll=document.getElementById('fAll'),
+sPending=document.getElementById('sPending'),sVerified=document.getElementById('sVerified'),sAll=document.getElementById('sAll'),
+modal=document.getElementById('modal'),modalTitle=document.getElementById('modalTitle'),modalWho=document.getElementById('modalWho'),modalHint=document.getElementById('modalHint'),modalNote=document.getElementById('modalNote'),
+modalCancel=document.getElementById('modalCancel'),modalConfirm=document.getElementById('modalConfirm'),
+msgModal=document.getElementById('msgModal'),msgModalWho=document.getElementById('msgModalWho'),msgThread=document.getElementById('msgThread'),msgInput=document.getElementById('msgInput'),
+msgModalCancel=document.getElementById('msgModalCancel'),msgModalSend=document.getElementById('msgModalSend');
+
+let KEY=localStorage.getItem('bawaxict_admin_key')||'',
+    activeTab='winners', winnerView='pending', reportView='open', flagView='unreviewed', skillView='pending',
+    poll=null, lastTotal=-1, notifOn=localStorage.getItem('bawaxict_admin_notif')==='1',
+    modalAction=null, msgSkillId=null;
+
+function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator();const g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.08;o.start();setTimeout(()=>{o.stop();ctx.close()},220)}catch(e){}}
+function fmt(t){return t?new Date(t*1000).toLocaleString():''}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function api(path,opt){opt=opt||{};return new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open(opt.method||'GET',path,true);x.setRequestHeader('Accept','application/json');if((opt.method||'GET')==='POST')x.setRequestHeader('Content-Type','application/json');x.onreadystatechange=()=>{if(x.readyState!==4)return;let d={};try{d=JSON.parse(x.responseText||'{}')}catch(e){}if(x.status>=200&&x.status<300)res(d);else rej(new Error(d.error||'Request failed'))};x.onerror=()=>rej(new Error('Cannot reach server'));x.send(opt.body||null)})}
+
+function updateNotifBtn(){notifToggle.textContent=notifOn?'🔔 Browser alerts on':'🔔 Enable browser alerts'}
+notifToggle.onclick=async()=>{
+  if(!('Notification' in window)){alert('Your browser does not support notifications.');return}
+  if(Notification.permission!=='granted'){const p=await Notification.requestPermission();if(p!=='granted')return}
+  notifOn=!notifOn;localStorage.setItem('bawaxict_admin_notif',notifOn?'1':'0');updateNotifBtn();
+};
+updateNotifBtn();
+
+function notifyNew(count,label){
+  if(count<=0)return;
+  if(notifOn&&'Notification' in window&&Notification.permission==='granted'){
+    try{new Notification('BAWAXICT Admin',{body:count+' new '+label,icon:'../assets/bawaxict-logo.png'})}catch(e){}
+  }
+}
+
+function renderWinners(rewards,pendingCount){
+  nWinners.textContent=pendingCount;nWinners.classList.toggle('show',pendingCount>0);
+  listWinners.innerHTML='';
+  if(!rewards.length){listWinners.innerHTML='<div class="empty">No rewards yet.</div>';return}
+  rewards.forEach(r=>{
+    const row=document.createElement('div');row.className='row';
+    const pillClass=r.status==='fulfilled'?'pill done':'pill';
+    row.innerHTML='<div><div class="who">'+esc(r.username)+'</div><div class="meta">Earned at '+r.hours+'h active chatting • '+fmt(r.createdAt)+
+      (r.onlineNow?' <span class="pill online">online now</span>':'')+'</div>'+
+      (r.status==='fulfilled'?'<div class="meta">Sent '+fmt(r.fulfilledAt)+(r.fulfilledNote?' — '+esc(r.fulfilledNote):'')+'</div>':'')+
+      '</div><div class="actions">'+
+      (r.status==='fulfilled'?'<span class="'+pillClass+'">Sent</span>':'<button data-id="'+r.id+'" type="button">Mark as sent</button>')+
+      '</div>';
+    if(r.status!=='fulfilled')row.querySelector('button').onclick=()=>openModal('reward',r.id,r.username+' — '+r.hours+'h milestone','Generate the voucher in MikroTik User Manager first, then paste the code/PIN below — it is delivered straight into the user\'s chat.');
+    listWinners.appendChild(row);
+  });
+}
+
+function renderReports(reports,openCount){
+  nReports.textContent=openCount;nReports.classList.toggle('show',openCount>0);
+  listReports.innerHTML='';
+  if(!reports.length){listReports.innerHTML='<div class="empty">No reports yet.</div>';return}
+  reports.forEach(r=>{
+    const row=document.createElement('div');row.className='row';row.style.display='block';
+    row.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><span class="who">'+esc(r.reporter)+'</span> <span class="pill cat">'+esc(r.category)+'</span></div>'+
+      '<div class="meta">'+fmt(r.created_at)+(r.status==='resolved'?' <span class="pill done">Resolved</span>':' <span class="pill">Open</span>')+'</div></div>'+
+      '<div class="detail">'+esc(r.message)+'</div>'+
+      (r.related_user?'<div class="meta" style="margin-top:6px">About member: <b>'+esc(r.related_user)+'</b></div>':'')+
+      (r.related_message?'<div class="flagged-text">"'+esc(r.related_message)+'"</div>':'')+
+      (r.status==='resolved'?'<div class="meta" style="margin-top:6px">Resolved '+fmt(r.resolved_at)+(r.resolved_note?' — '+esc(r.resolved_note):'')+'</div>':
+        '<div class="actions" style="margin-top:10px"><button data-id="'+r.id+'" type="button">Mark resolved</button></div>');
+    if(r.status!=='resolved')row.querySelector('button').onclick=()=>openModal('report',r.id,esc(r.reporter)+' — '+esc(r.category),'Optional: a short note explaining what was done. If this reporter is a known chat member, the note is delivered straight into their chat.');
+    listReports.appendChild(row);
+  });
+}
+
+function renderFlags(flags,unreviewedCount){
+  nFlags.textContent=unreviewedCount;nFlags.classList.toggle('show',unreviewedCount>0);
+  listFlags.innerHTML='';
+  if(!flags.length){listFlags.innerHTML='<div class="empty">No filtered messages.</div>';return}
+  flags.forEach(f=>{
+    const row=document.createElement('div');row.className='row';row.style.display='block';
+    row.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><span class="who">'+esc(f.username)+'</span> <span class="pill cat">'+esc(f.scope)+'</span></div>'+
+      '<div class="meta">'+fmt(f.created_at)+(f.reviewed?' <span class="pill done">Reviewed</span>':' <span class="pill">Unreviewed</span>')+'</div></div>'+
+      '<div class="flagged-text">"'+esc(f.message)+'"</div>'+
+      '<div class="meta" style="margin-top:6px">Matched term: <code>'+esc(f.term)+'</code></div>'+
+      (f.reviewed?'':'<div class="actions" style="margin-top:10px"><button class="ghost" data-id="'+f.id+'" type="button">Mark reviewed</button></div>');
+    if(!f.reviewed)row.querySelector('button').onclick=async()=>{try{await api('/api/admin/flags/review',{method:'POST',body:JSON.stringify({key:KEY,id:f.id})});refresh()}catch(e){alert(e.message)}};
+    listFlags.appendChild(row);
+  });
+}
+
+function renderSkills(skills,pendingCount){
+  nSkills.textContent=pendingCount;nSkills.classList.toggle('show',pendingCount>0);
+  listSkills.innerHTML='';
+  if(!skills.length){listSkills.innerHTML='<div class="empty">No skill listings yet.</div>';return}
+  skills.forEach(s=>{
+    const row=document.createElement('div');row.className='row';row.style.display='block';
+    const statusPill=s.status==='verified'?'<span class="pill done">✅ Verified</span>':(s.status==='rejected'?'<span class="pill" style="background:#ffe1de;color:#7a1f18">Rejected</span>':'<span class="pill">Pending</span>');
+    const feePill=s.fee_paid?'<span class="pill done">₦1,500 fee received</span>':'<span class="pill" style="background:#ffe1de;color:#7a1f18">Fee not yet received</span>';
+    const unreadPill=s.unreadFromUser>0?'<span class="pill" style="background:#ffe1de;color:#7a1f18">'+s.unreadFromUser+' new reply</span>':'';
+    row.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><div><span class="who">'+esc(s.name)+'</span> <span class="pill cat">'+esc(s.category)+'</span></div>'+
+      '<div class="meta">'+fmt(s.created_at)+' '+statusPill+' '+feePill+' '+unreadPill+'</div></div>'+
+      '<div class="detail">'+esc(s.description)+'</div>'+
+      '<div class="meta" style="margin-top:6px">WhatsApp: <b>'+esc(s.whatsapp)+'</b> • Ref code: <b>'+esc(s.ref_code||'—')+'</b></div>'+
+      (s.admin_note?'<div class="meta" style="margin-top:4px">Admin note: '+esc(s.admin_note)+'</div>':'')+
+      '<label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:var(--muted)"><input type="checkbox" data-fee-id="'+s.id+'" '+(s.fee_paid?'checked':'')+'> ₦1,500 activation fee received</label>'+
+      '<div class="actions" style="margin-top:10px">'+
+      '<button class="ghost" data-msg-id="'+s.id+'" type="button">💬 Message</button>'+
+      (s.status!=='verified'?'<button data-id="'+s.id+'" data-act="verify" type="button">Verify</button>':'<button class="ghost" data-id="'+s.id+'" data-act="unverify" type="button">Unverify</button>')+
+      (s.status!=='rejected'?'<button class="ghost" data-id="'+s.id+'" data-act="reject" type="button">Reject</button>':'')+
+      '</div>';
+    row.querySelectorAll('button[data-act]').forEach(b=>{
+      b.onclick=()=>openModal('skill:'+b.dataset.act,s.id,esc(s.name)+' — '+esc(s.category),'Optional note (kept internally, not shown to the user).');
+    });
+    row.querySelector('button[data-msg-id]').onclick=()=>openMsgModal(s.id,s.name);
+    row.querySelector('input[data-fee-id]').onchange=async(e)=>{
+      try{await api('/api/admin/skills/fee',{method:'POST',body:JSON.stringify({key:KEY,id:s.id,paid:e.target.checked})});refresh()}
+      catch(err){alert(err.message);e.target.checked=!e.target.checked}
+    };
+    listSkills.appendChild(row);
+  });
+}
+
+async function refresh(){
+  try{
+    const [wr,rr,fr,sr]=await Promise.all([
+      api('/api/admin/rewards?key='+encodeURIComponent(KEY)+'&status='+(winnerView==='pending'?'pending':'all')),
+      api('/api/admin/reports?key='+encodeURIComponent(KEY)+'&status='+(reportView==='open'?'open':'all')),
+      api('/api/admin/flags?key='+encodeURIComponent(KEY)+'&status='+(flagView==='unreviewed'?'unreviewed':'all')),
+      api('/api/admin/skills?key='+encodeURIComponent(KEY)+'&status='+(skillView==='pending'?'pending':(skillView==='verified'?'verified':'all'))),
+    ]);
+    renderWinners(wr.rewards||[],wr.pendingCount||0);
+    renderReports(rr.reports||[],rr.openCount||0);
+    renderFlags(fr.flags||[],fr.unreviewedCount||0);
+    renderSkills(sr.skills||[],sr.pendingCount||0);
+    const pendingCount=wr.pendingCount||0, openCount=rr.openCount||0, unreviewedCount=fr.unreviewedCount||0, skillPendingCount=sr.pendingCount||0;
+    const total=pendingCount+openCount+unreviewedCount+skillPendingCount;
+    pendingLabel.textContent=pendingCount+' winner(s) • '+openCount+' report(s) • '+unreviewedCount+' filtered • '+skillPendingCount+' skill(s)';
+    if(total>lastTotal&&lastTotal>=0){beep();notifyNew(total-lastTotal,'notification(s) waiting')}
+    lastTotal=total;
+    if(total>0){badge.textContent=total+' NEW';badge.classList.add('show')}else badge.classList.remove('show');
+  }catch(e){
+    if(/admin key/i.test(e.message)){
+      if(poll){clearInterval(poll);poll=null}
+      localStorage.removeItem('bawaxict_admin_key');
+      dash.style.display='none';gate.style.display='block';gateErr.textContent=e.message;
+    }
+  }
+}
+
+function setTab(name){
+  activeTab=name;
+  tabWinners.classList.toggle('active',name==='winners');
+  tabReports.classList.toggle('active',name==='reports');
+  tabFlags.classList.toggle('active',name==='flags');
+  tabSkills.classList.toggle('active',name==='skills');
+  panelWinners.style.display=name==='winners'?'block':'none';
+  panelReports.style.display=name==='reports'?'block':'none';
+  panelFlags.style.display=name==='flags'?'block':'none';
+  panelSkills.style.display=name==='skills'?'block':'none';
+}
+tabWinners.onclick=()=>setTab('winners');tabReports.onclick=()=>setTab('reports');tabFlags.onclick=()=>setTab('flags');tabSkills.onclick=()=>setTab('skills');
+
+wPending.onclick=()=>{winnerView='pending';wPending.classList.add('active');wAll.classList.remove('active');refresh()};
+wAll.onclick=()=>{winnerView='all';wAll.classList.add('active');wPending.classList.remove('active');refresh()};
+rOpen.onclick=()=>{reportView='open';rOpen.classList.add('active');rAll.classList.remove('active');refresh()};
+rAll.onclick=()=>{reportView='all';rAll.classList.add('active');rOpen.classList.remove('active');refresh()};
+fUnreviewed.onclick=()=>{flagView='unreviewed';fUnreviewed.classList.add('active');fAll.classList.remove('active');refresh()};
+fAll.onclick=()=>{flagView='all';fAll.classList.add('active');fUnreviewed.classList.remove('active');refresh()};
+sPending.onclick=()=>{skillView='pending';sPending.classList.add('active');sVerified.classList.remove('active');sAll.classList.remove('active');refresh()};
+sVerified.onclick=()=>{skillView='verified';sVerified.classList.add('active');sPending.classList.remove('active');sAll.classList.remove('active');refresh()};
+sAll.onclick=()=>{skillView='all';sAll.classList.add('active');sPending.classList.remove('active');sVerified.classList.remove('active');refresh()};
+
+function openModal(action,id,who,hint){modalAction=action;modal.dataset.id=id;modalWho.textContent=who;modalHint.textContent=hint;
+  const titles={reward:'Mark reward as sent',report:'Mark report resolved','skill:verify':'Verify this skill listing','skill:reject':'Reject this skill listing','skill:unverify':'Remove verified badge'};
+  const confirms={reward:'Confirm sent',report:'Mark resolved','skill:verify':'Confirm verified','skill:reject':'Confirm reject','skill:unverify':'Confirm unverify'};
+  modalTitle.textContent=titles[action]||'Confirm';modalConfirm.textContent=confirms[action]||'Confirm';modalNote.value='';modal.classList.add('show')}
+modalCancel.onclick=()=>modal.classList.remove('show');
+modalConfirm.onclick=async()=>{
+  const id=modal.dataset.id;
+  try{
+    if(modalAction==='reward')await api('/api/admin/rewards/fulfill',{method:'POST',body:JSON.stringify({key:KEY,id:id,note:modalNote.value.trim()})});
+    else if(modalAction==='report')await api('/api/admin/reports/resolve',{method:'POST',body:JSON.stringify({key:KEY,id:id,note:modalNote.value.trim()})});
+    else if(modalAction.startsWith('skill:'))await api('/api/admin/skills/verify',{method:'POST',body:JSON.stringify({key:KEY,id:id,action:modalAction.split(':')[1],note:modalNote.value.trim()})});
+    modal.classList.remove('show');refresh()
+  }catch(e){alert(e.message)}
+};
+
+async function loadThread(id){
+  msgThread.innerHTML='<div class="muted" style="font-size:11px">Loading…</div>';
+  try{
+    const r=await api('/api/admin/skills/thread?key='+encodeURIComponent(KEY)+'&id='+id);
+    const msgs=r.messages||[];
+    if(!msgs.length){msgThread.innerHTML='<div class="muted" style="font-size:11px">No messages yet — ask your verification questions below.</div>';return}
+    msgThread.innerHTML=msgs.map(m=>'<div style="margin-bottom:8px;text-align:'+(m.sender==='admin'?'right':'left')+'"><span style="display:inline-block;max-width:85%;padding:7px 10px;border-radius:10px;font-size:12px;background:'+(m.sender==='admin'?'#e7f5ee':'#fff')+';border:1px solid var(--line)">'+esc(m.message)+'</span><div class="meta" style="font-size:10px">'+(m.sender==='admin'?'You':'Registrant')+' • '+fmt(m.created_at)+'</div></div>').join('');
+    msgThread.scrollTop=msgThread.scrollHeight;
+  }catch(e){msgThread.innerHTML='<div class="muted" style="font-size:11px">Could not load messages.</div>'}
+}
+function openMsgModal(id,name){msgSkillId=id;msgModalWho.textContent='Message thread — '+name;msgInput.value='';msgModal.classList.add('show');loadThread(id)}
+msgModalCancel.onclick=()=>msgModal.classList.remove('show');
+msgModalSend.onclick=async()=>{
+  const text=msgInput.value.trim();
+  if(!text)return;
+  try{await api('/api/admin/skills/message',{method:'POST',body:JSON.stringify({key:KEY,id:msgSkillId,message:text})});msgInput.value='';loadThread(msgSkillId);refresh()}
+  catch(e){alert(e.message)}
+};
+
+function openDash(){
+  gate.style.display='none';dash.style.display='block';
+  refresh();if(poll)clearInterval(poll);poll=setInterval(refresh,15000);
+}
+enterBtn.onclick=()=>{const k=keyInput.value.trim();if(!k){gateErr.textContent='Enter the admin key.';return}KEY=k;localStorage.setItem('bawaxict_admin_key',KEY);gateErr.textContent='';openDash()};
+keyInput.onkeydown=e=>{if(e.key==='Enter')enterBtn.click()};
+if(KEY){keyInput.value=KEY;openDash()}
+
+// "Return to Portal" fix: this dashboard is served by the FamilyHub chat
+// server (familyhub.chat:8080), which does NOT host login.html — that page
+// only exists on the separate BAWAXICT hotspot portal (bawaxict.edu.net).
+// A plain href="../login.html" therefore always 404s on THIS server.
+// Instead: go to wherever the admin actually came from (previous page),
+// then fall back to browser history, then to the real portal address.
+document.getElementById('returnPortalBtn').onclick=function(){
+  var ref=document.referrer;
+  if(ref && ref.indexOf(location.origin)!==0){location.href=ref;return}
+  if(window.history.length>1){history.back();return}
+  location.href='http://bawaxict.edu.net/login.html';
+};
+</script>
+</body></html>

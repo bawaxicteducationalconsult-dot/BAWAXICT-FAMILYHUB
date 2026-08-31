@@ -1,0 +1,42 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAWAX Snake</title>
+<link rel="stylesheet" href="../css/bawaxict.css"><style>
+body{background:#071b14}.wrap{max-width:720px;margin:auto;padding:16px}.panel{background:#fff;border-radius:22px;padding:14px;box-shadow:var(--shadow)}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px}.score{font-weight:900;color:#0b6b4f}.board{width:min(92vw,560px);aspect-ratio:1;margin:12px auto;background:#08241a;border-radius:16px;display:block;touch-action:none}
+.controls{display:grid;grid-template-columns:repeat(3,58px);gap:7px;justify-content:center;margin-top:10px}.controls button,.actions button{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:12px;font-size:18px;font-weight:800}.controls button:nth-child(1){grid-column:2}.actions{display:flex;justify-content:center;gap:8px;margin-top:10px}.note{text-align:center;color:#64748b;font-size:12px}
+</style><style>
+/* BAWAX Mobile Game Zone enhancements */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{-webkit-text-size-adjust:100%;touch-action:manipulation}
+img,canvas,svg,video{max-width:100%;height:auto}
+button,.btn,input,select{min-height:44px;touch-action:manipulation}
+.game-container,.game,.game-wrap,.game-area,.container{max-width:100%;width:100%;box-sizing:border-box}
+@media (max-width:600px){
+  body{padding-left:8px!important;padding-right:8px!important}
+  h1{font-size:clamp(20px,6vw,30px)!important}
+  h2{font-size:clamp(18px,5vw,25px)!important}
+  button,.btn{font-size:15px!important;padding:10px 12px!important}
+  canvas{display:block;margin:0 auto;max-width:100%!important}
+  .game-grid{grid-template-columns:1fr!important}
+  .controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  .controls button{width:100%!important}
+}
+/* Make the game itself fit the phone viewport rather than forcing desktop width. */
+@media (max-width:420px){
+  body{padding-left:5px!important;padding-right:5px!important}
+  .controls{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>  <link rel="stylesheet" href="css/mobile-safe.css">
+</head><body><div class="page"><div class="topbar"><a class="brand" href="../games.html"><img src="../assets/bawaxict-logo.png" alt="BAWAX ICT"></a><div class="status-pill"><span class="dot"></span>No ticket needed</div></div>
+<div class="wrap"><div class="panel"><div class="head"><div><h1 style="margin:0">🐍 BAWAX Snake</h1><p style="margin:3px 0;color:#64748b">Eat the dots, grow longer, don't hit yourself.</p></div><div class="score">Score: <span id="score">0</span></div></div>
+<canvas id="c" class="board" width="480" height="480"></canvas><div class="controls"><button data-d="up">▲</button><button data-d="left">◀</button><button data-d="down">▼</button><button data-d="right">▶</button></div><div class="actions"><button id="start">Start / Restart</button><button onclick="location.href='../games.html'">Game Zone</button></div><p class="note">Use arrow keys, swipe, or the buttons. The game runs completely on the hotspot device.</p></div></div></div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d'),N=24,cell=cv.width/N;let snake,food,dir,next,score,timer,running=false;
+function reset(){snake=[{x:12,y:12},{x:11,y:12},{x:10,y:12}];dir={x:1,y:0};next={x:1,y:0};score=0;place();document.getElementById('score').textContent=score;draw()}
+function place(){do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}while(snake.some(s=>s.x===food.x&&s.y===food.y))}
+function draw(){x.fillStyle='#08241a';x.fillRect(0,0,cv.width,cv.height);x.strokeStyle='#103d2d';for(let i=1;i<N;i++){x.beginPath();x.moveTo(i*cell,0);x.lineTo(i*cell,cv.height);x.stroke();x.beginPath();x.moveTo(0,i*cell);x.lineTo(cv.width,i*cell);x.stroke()}x.fillStyle='#f59e0b';x.beginPath();x.arc(food.x*cell+cell/2,food.y*cell+cell/2,cell*.28,0,7);x.fill();snake.forEach((s,i)=>{x.fillStyle=i?'#22c55e':'#86efac';x.fillRect(s.x*cell+2,s.y*cell+2,cell-4,cell-4)});if(!running){x.fillStyle='#fff';x.font='bold 24px system-ui';x.textAlign='center';x.fillText(score?'Game over — press Start':'Press Start to play',cv.width/2,cv.height/2)}}
+function tick(){if(!running)return;dir=next;let h={x:snake[0].x+dir.x,y:snake[0].y+dir.y};if(h.x<0||h.y<0||h.x>=N||h.y>=N||snake.some(s=>s.x===h.x&&s.y===h.y)){running=false;clearInterval(timer);draw();return}snake.unshift(h);if(h.x===food.x&&h.y===food.y){score++;document.getElementById('score').textContent=score;place()}else snake.pop();draw()}
+function setDir(d){const m={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}}[d];if(m.x+dir.x||m.y+dir.y)next=m}
+document.addEventListener('keydown',e=>{const k={ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'}[e.key];if(k){e.preventDefault();setDir(k)}});document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>setDir(b.dataset.d));
+let sy=0,sx=0;cv.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});cv.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;setDir(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'))},{passive:true});
+document.getElementById('start').onclick=()=>{reset();running=true;clearInterval(timer);timer=setInterval(tick,125);draw()};reset();
+</script></body></html>

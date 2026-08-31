@@ -1,0 +1,49 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAWAX Tank Arena</title>
+<link rel="stylesheet" href="../css/bawaxict.css"><style>
+body{background:#101827}.wrap{max-width:760px;margin:auto;padding:16px}.panel{background:#fff;border-radius:22px;padding:14px;box-shadow:var(--shadow)}.head{display:flex;justify-content:space-between}.score{font-weight:900;color:#0b6b4f}.arena{display:block;width:min(94vw,640px);height:auto;aspect-ratio:4/3;background:#0d1725;border-radius:16px;margin:12px auto;touch-action:none}.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.actions button{border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;padding:11px 14px;font-weight:800}.note{text-align:center;color:#64748b;font-size:12px}
+</style><style>
+/* BAWAX Mobile Game Zone enhancements */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{-webkit-text-size-adjust:100%;touch-action:manipulation}
+img,canvas,svg,video{max-width:100%;height:auto}
+button,.btn,input,select{min-height:44px;touch-action:manipulation}
+.game-container,.game,.game-wrap,.game-area,.container{max-width:100%;width:100%;box-sizing:border-box}
+@media (max-width:600px){
+  body{padding-left:8px!important;padding-right:8px!important}
+  h1{font-size:clamp(20px,6vw,30px)!important}
+  h2{font-size:clamp(18px,5vw,25px)!important}
+  button,.btn{font-size:15px!important;padding:10px 12px!important}
+  canvas{display:block;margin:0 auto;max-width:100%!important}
+  .game-grid{grid-template-columns:1fr!important}
+  .controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  .controls button{width:100%!important}
+}
+/* Make the game itself fit the phone viewport rather than forcing desktop width. */
+@media (max-width:420px){
+  body{padding-left:5px!important;padding-right:5px!important}
+  .controls{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>  <link rel="stylesheet" href="css/mobile-safe.css">
+</head><body><div class="page"><div class="topbar"><a class="brand" href="../games.html"><img src="../assets/bawaxict-logo.png" alt="BAWAX ICT"></a><div class="status-pill"><span class="dot"></span>No ticket needed</div></div>
+<div class="wrap"><div class="panel"><div class="head"><div><h1 style="margin:0">🛡️ BAWAX Tank Arena</h1><p style="margin:3px 0;color:#64748b">Move, aim and clear the targets.</p></div><div class="score">Score: <span id="score">0</span></div></div>
+<canvas id="c" class="arena" width="640" height="480"></canvas><div class="actions"><button id="start">Start / Restart</button><button onclick="location.href='../games.html'">Game Zone</button></div><p class="note">Keyboard: arrows/WASD to move, mouse/touch to aim and tap/click to fire. No external resources.</p></div></div></div>
+<script>
+const c=document.getElementById('c'),g=c.getContext('2d');let t,enemies,bullets,score,run=false,last=0,keys={},aim={x:1,y:0},timer;
+function reset(){t={x:320,y:240,a:0};enemies=[];bullets=[];score=0;for(let i=0;i<6;i++)spawn();document.getElementById('score').textContent=0;draw()}
+function spawn(){let side=Math.floor(Math.random()*4),x=side<2?Math.random()*640:(side===2?0:640),y=side<2?(side?480:0):Math.random()*480;enemies.push({x,y,r:15,dx:0,dy:0})}
+function shoot(){if(!run)return;bullets.push({x:t.x,y:t.y,vx:aim.x*7,vy:aim.y*7})}
+function update(dt){let sx=(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),sy=(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0),l=Math.hypot(sx,sy)||1;t.x=Math.max(18,Math.min(622,t.x+sx/l*3.2*dt/16));t.y=Math.max(18,Math.min(462,t.y+sy/l*3.2*dt/16));
+ bullets.forEach(b=>{b.x+=b.vx;b.y+=b.vy});bullets=bullets.filter(b=>b.x>-10&&b.x<650&&b.y>-10&&b.y<490);
+ enemies.forEach(e=>{let dx=t.x-e.x,dy=t.y-e.y,l=Math.hypot(dx,dy)||1;e.x+=dx/l*.75*dt/16;e.y+=dy/l*.75*dt/16});
+ for(let i=enemies.length-1;i>=0;i--)for(let j=bullets.length-1;j>=0;j--){if(Math.hypot(enemies[i].x-bullets[j].x,enemies[i].y-bullets[j].y)<20){enemies.splice(i,1);bullets.splice(j,1);score++;document.getElementById('score').textContent=score;spawn();break}}
+ if(enemies.some(e=>Math.hypot(e.x-t.x,e.y-t.y)<25)){run=false;clearInterval(timer)}
+}
+function draw(){g.fillStyle='#0d1725';g.fillRect(0,0,640,480);g.strokeStyle='#1e3147';for(let x=0;x<640;x+=40){g.beginPath();g.moveTo(x,0);g.lineTo(x,480);g.stroke()}for(let y=0;y<480;y+=40){g.beginPath();g.moveTo(0,y);g.lineTo(640,y);g.stroke()}
+ bullets.forEach(b=>{g.fillStyle='#f59e0b';g.beginPath();g.arc(b.x,b.y,4,0,7);g.fill()});enemies.forEach(e=>{g.fillStyle='#ef4444';g.beginPath();g.arc(e.x,e.y,e.r,0,7);g.fill();g.fillStyle='#991b1b';g.fillRect(e.x-3,e.y-3,6,6)});
+ g.save();g.translate(t.x,t.y);g.rotate(t.a);g.fillStyle='#22c55e';g.fillRect(-16,-13,32,26);g.fillStyle='#86efac';g.fillRect(4,-4,25,8);g.restore();if(!run){g.fillStyle='#fff';g.font='bold 24px system-ui';g.textAlign='center';g.fillText(score?'Arena cleared / tank destroyed — press Start':'Press Start to play',320,240)}}
+function loop(){if(run){update(16);draw()}}
+function aimAt(px,py){let r=c.getBoundingClientRect(),x=(px-r.left)*c.width/r.width,y=(py-r.top)*c.height/r.height,dx=x-t.x,dy=y-t.y,l=Math.hypot(dx,dy)||1;aim={x:dx/l,y:dy/l};t.a=Math.atan2(dy,dx)}
+c.addEventListener('pointermove',e=>aimAt(e.clientX,e.clientY));c.addEventListener('pointerdown',e=>{aimAt(e.clientX,e.clientY);shoot()});
+document.addEventListener('keydown',e=>{keys[e.key]=true;if(e.key===' '){e.preventDefault();shoot()}});document.addEventListener('keyup',e=>keys[e.key]=false);
+document.getElementById('start').onclick=()=>{reset();run=true;clearInterval(timer);timer=setInterval(loop,16);draw()};reset();
+</script></body></html>

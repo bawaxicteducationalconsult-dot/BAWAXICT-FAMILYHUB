@@ -1,0 +1,14 @@
+BAWAX ICT MIKROTIK HOTSPOT — PRODUCTION V2
+
+1. Back up the live router before changing anything.
+2. Upload the hotspot HTML files to the router's hotspot directory.
+3. Review BAWAXICT_MikroTik_FamilyHub_PRODUCTION_V2_FIXED.rsc before import.
+4. The export is intended for RouterOS 6.49.x and the topology documented in README.md.
+5. Community Chat does not require a hotspot ticket.
+6. FamilyHub server: local LAN server at http://familyhub.chat:8080/ (192.168.6.191:8080).
+7. Friendly hostname: familyhub.chat (MikroTik local DNS points it to 192.168.6.191).
+8. Do not deploy the obsolete Node.js/10.5.50.2 chat design.
+
+The RSC now creates the main LAN DHCP pool before the DHCP server references it,
+removes the self-referencing next-pool setting, and includes a baseline firewall.
+Test in a maintenance window and keep a rollback backup.

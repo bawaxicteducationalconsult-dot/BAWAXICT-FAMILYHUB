@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#073b2c">
+<title>BAWAXICT WIFI | Community Dashboard</title>
+<link rel="stylesheet" href="css/bawaxict.css">
+<link rel="stylesheet" href="css/mobile-safe.css">
+<script src="config.js"></script>
+<style>
+/* ============================================================
+   BAWAXICT FAMILYHUB — WEB LANDING / DASHBOARD PROTOTYPE
+   Based on the approved dashboard mockup.
+   WEB VERSION: hotspot-only purchase controls are intentionally
+   excluded from this page.
+   ============================================================ */
+:root{--dash-green:#073b2c;--dash-green2:#0b6b4f;--dash-green3:#15906d;--dash-orange:#f28a19;--dash-bg:#f5f8f6;--dash-line:#e2ebe6;--dash-text:#17352b;--dash-muted:#6d7e76;--dash-shadow:0 8px 26px rgba(7,59,44,.08)}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:var(--dash-bg);color:var(--dash-text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font:inherit}
+.dashboard{min-height:100vh;display:grid;grid-template-columns:258px minmax(0,1fr)}
+.sidebar{position:fixed;inset:0 auto 0 0;width:258px;background:linear-gradient(180deg,#052f23 0%,#073b2c 55%,#052e22 100%);color:#fff;padding:24px 18px 18px;display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.side-brand{text-align:center;padding:2px 8px 18px;border-bottom:1px solid rgba(255,255,255,.10)}
+.side-brand img{width:112px;height:auto;display:block;margin:0 auto 8px;filter:drop-shadow(0 7px 13px rgba(0,0,0,.18))}
+.side-brand .side-name{font-size:20px;font-weight:950;letter-spacing:.3px}.side-brand .side-name span{color:#f28a19}
+.side-brand small{display:block;margin-top:5px;color:rgba(255,255,255,.72);font-size:11px;line-height:1.4}
+.side-nav{display:grid;gap:5px;margin-top:18px}
+.side-link{display:flex;align-items:center;gap:13px;padding:12px 11px;border-radius:12px;color:rgba(255,255,255,.86);transition:.16s ease;font-size:13px;font-weight:800}
+.side-link:hover{background:rgba(255,255,255,.08);color:#fff;transform:translateX(1px)}
+.side-link.active{background:#10a35f;color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.13)}
+.side-icon{width:26px;text-align:center;font-size:20px;line-height:1}.side-copy{display:flex;flex-direction:column;gap:2px}.side-copy small{font-size:9px;font-weight:500;color:rgba(255,255,255,.60)}
+.side-spacer{flex:1;min-height:16px}
+.logout{border:1px solid rgba(255,80,80,.85);background:rgba(0,0,0,.10);justify-content:center;color:#fff}.logout:hover{background:rgba(255,80,80,.13)}
+.invite{margin-top:10px;background:linear-gradient(135deg,#ed7c13,#f5a22d);border-radius:12px;padding:13px 12px;text-align:left;box-shadow:0 9px 22px rgba(0,0,0,.12)}
+.invite strong{display:block;font-size:15px}.invite span{display:block;font-size:10px;margin:3px 0 10px;color:#fff8eb}.invite a{display:inline-flex;background:#fff;color:#8d5008;border-radius:999px;padding:7px 12px;font-size:10px;font-weight:950}
+.main{grid-column:2;min-width:0;padding:0 22px 0}
+.topbar{height:76px;background:#fff;border-bottom:1px solid var(--dash-line);display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 -22px;padding:0 26px;position:sticky;top:0;z-index:30}
+.top-left{display:flex;align-items:center;gap:15px;min-width:0}.mobile-menu{display:none;border:0;background:transparent;font-size:25px;cursor:pointer;color:var(--dash-green)}
+.top-brand{display:flex;align-items:center;gap:12px}.top-brand img{width:47px;height:47px;object-fit:contain}.top-brand-text{font-size:20px;font-weight:950;color:#123d2f;letter-spacing:.2px}.top-brand-text span{color:var(--dash-orange)}.top-brand-sub{display:block;font-size:10px;color:var(--dash-muted);font-weight:600;margin-top:1px}
+.top-right{display:flex;align-items:center;gap:16px}.bell{position:relative;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:22px}.bell:hover{background:#f2f7f4}.profile{display:flex;align-items:center;gap:10px;border:1px solid #edf1ee;background:#fff;border-radius:30px;padding:7px 11px 7px 7px;cursor:pointer}.avatar{width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:#dcefe5;color:#0a7a50;font-size:23px}.profile b{display:block;font-size:12px}.profile small{display:block;color:var(--dash-muted);font-size:9px;margin-top:2px}.profile .chev{font-size:13px;margin-left:4px}
+.content{width:min(1180px,100%);margin:0 auto;padding:24px 0 0}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:22px;align-items:start}
+.welcome{min-height:258px;border-radius:18px;background:radial-gradient(circle at 78% 48%,rgba(31,157,111,.36),transparent 27%),linear-gradient(135deg,#052f23,#073b2c 58%,#0a6449);color:#fff;padding:28px 30px;position:relative;overflow:hidden;box-shadow:var(--dash-shadow)}
+.welcome:before{content:"";position:absolute;width:330px;height:330px;right:-100px;top:-175px;border-radius:50%;border:38px solid rgba(255,255,255,.045)}
+.welcome:after{content:"";position:absolute;width:220px;height:220px;right:55px;bottom:-150px;border-radius:50%;border:34px solid rgba(242,138,25,.10)}
+.welcome .eyebrow{font-size:12px;font-weight:800;color:#f8c978;position:relative;z-index:2}.welcome h1{font-size:29px;line-height:1.12;margin:10px 0 9px;letter-spacing:-.6px;position:relative;z-index:2}.welcome p{max-width:600px;margin:0;color:rgba(255,255,255,.80);font-size:12px;line-height:1.55;position:relative;z-index:2}
+.connect-mark{position:absolute;right:26px;top:24px;width:42px;height:42px;border-radius:50%;background:#fff;color:#15906d;display:grid;place-items:center;font-size:22px;font-weight:950;z-index:3;box-shadow:0 8px 22px rgba(0,0,0,.15)}
+.welcome-visual{position:absolute;right:36px;bottom:22px;width:210px;height:92px;opacity:.46;z-index:1}.node{position:absolute;width:16px;height:16px;border-radius:50%;background:#fff}.node:after{content:"";position:absolute;left:7px;top:7px;width:72px;height:1px;background:rgba(255,255,255,.5);transform-origin:left}.n1{left:5px;top:36px}.n2{left:66px;top:6px}.n3{left:66px;top:65px}.n4{right:8px;top:36px}.n5{left:100px;top:36px;width:28px;height:28px}.n5:after{display:none}
+.section-title{display:flex;justify-content:space-between;align-items:end;gap:10px;margin:23px 0 12px}.section-title h2{font-size:15px;margin:0;font-weight:950}.section-title p{margin:3px 0 0;color:var(--dash-muted);font-size:10px}.viewall{font-size:10px;font-weight:900;color:#158550}
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.quick{min-height:145px;border-radius:15px;color:#fff;padding:18px 13px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:var(--dash-shadow);transition:.16s ease}.quick:hover{transform:translateY(-3px);filter:brightness(1.04)}.quick.green{background:linear-gradient(150deg,#073b2c,#0b6b4f)}.quick.orange{background:linear-gradient(150deg,#ed7c13,#f5a22d)}.quick-icon{font-size:35px;line-height:1;margin-bottom:11px}.quick strong{font-size:12px;line-height:1.2}.quick small{font-size:9px;color:rgba(255,255,255,.78);margin-top:6px}.quick-arrow{margin-top:9px;width:28px;height:28px;background:#fff;color:#17352b;border-radius:50%;display:grid;place-items:center;font-weight:950}
+.activity{background:#fff;border:1px solid var(--dash-line);border-radius:15px;overflow:hidden;box-shadow:0 5px 18px rgba(7,59,44,.04)}.activity-row{min-height:68px;display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #edf1ef}.activity-row:last-child{border-bottom:0}.activity-icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:19px;background:#e4f4ec;flex:0 0 auto}.activity-icon.orange{background:#fff0dd}.activity-text{min-width:0;flex:1}.activity-text strong{display:block;font-size:11px}.activity-text span{display:block;color:var(--dash-muted);font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.activity-time{font-size:9px;color:var(--dash-muted);white-space:nowrap}.activity-arrow{font-size:17px;color:#789087}
+.right-stack{display:grid;gap:16px}.side-card{background:#fff;border:1px solid var(--dash-line);border-radius:15px;padding:17px;box-shadow:var(--dash-shadow)}.side-card h3{font-size:12px;margin:0 0 13px;font-weight:950;text-transform:uppercase;letter-spacing:.4px}.status-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid #edf1ef}.status-row:last-child{border-bottom:0;padding-bottom:0}.status-ico{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#e2f3e9;font-size:18px}.status-copy{flex:1}.status-copy small{display:block;color:var(--dash-muted);font-size:9px}.status-copy strong{display:block;font-size:11px;margin-top:2px}.check{width:22px;height:22px;border-radius:50%;background:#e2f3e9;color:#118652;display:grid;place-items:center;font-size:12px;font-weight:950}
+.access{background:linear-gradient(135deg,#f4fbf7,#fff);border:1px solid #e2eee8}.access-main{display:flex;align-items:center;gap:12px}.access-badge{width:46px;height:46px;border-radius:14px;background:#e0f2e8;display:grid;place-items:center;font-size:23px}.access strong{font-size:14px}.access p{margin:3px 0 0;color:var(--dash-muted);font-size:9px;line-height:1.45}.progress{height:8px;background:#e4eee9;border-radius:999px;overflow:hidden;margin-top:14px}.progress span{display:block;height:100%;width:82%;background:linear-gradient(90deg,#0b6b4f,#22aa73);border-radius:inherit}.access-note{font-size:9px;color:var(--dash-muted);margin-top:7px}
+.shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.shortcut{min-height:78px;border:1px solid #edf1ef;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;background:#fff;font-size:10px;font-weight:800;position:relative}.shortcut:hover{border-color:#a8cdbd;background:#f9fcfa}.shortcut i{font-style:normal;font-size:21px}.shortcut .badge{position:absolute;right:8px;top:7px;background:#ed7c13;color:#fff;min-width:18px;height:18px;padding:0 5px;border-radius:999px;display:grid;place-items:center;font-size:8px}
+.bottom-banner{margin-top:22px;min-height:108px;border-radius:17px;padding:22px 26px;background:radial-gradient(circle at 72% 45%,rgba(26,143,102,.4),transparent 26%),linear-gradient(110deg,#052f23,#073b2c 70%,#0a6b4f);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;overflow:hidden;position:relative;box-shadow:var(--dash-shadow)}.bottom-banner:after{content:"";position:absolute;width:190px;height:190px;right:120px;top:-90px;border:26px solid rgba(255,255,255,.06);border-radius:50%}.banner-copy{position:relative;z-index:2}.banner-copy h2{margin:0;font-size:20px;line-height:1.1}.banner-copy h2 span{color:#fff}.banner-copy p{margin:6px 0 0;font-size:10px;color:rgba(255,255,255,.75)}.banner-btn{position:relative;z-index:3;flex:0 0 auto;background:#f28a19;color:#fff;border-radius:999px;padding:13px 21px;font-size:11px;font-weight:950;box-shadow:0 8px 18px rgba(0,0,0,.15)}
+.footer{margin:24px -22px 0;padding:25px max(26px,calc((100% - 1180px)/2));background:#052f23;color:#fff;display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:30px}.footer-brand{display:flex;gap:12px;align-items:flex-start}.footer-brand img{width:58px}.footer strong{font-size:14px}.footer strong span{color:#f28a19}.footer small,.footer p{display:block;color:rgba(255,255,255,.66);font-size:9px;line-height:1.55;margin:4px 0 0}.footer h4{margin:0 0 8px;font-size:10px;text-transform:uppercase;letter-spacing:1px}.socials{display:flex;gap:8px}.socials a{width:30px;height:30px;border:1px solid rgba(255,255,255,.35);border-radius:50%;display:grid;place-items:center;font-size:12px}.copyright{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.1);padding-top:13px;text-align:center;color:rgba(255,255,255,.55);font-size:9px}
+.overlay{display:none}
+@media(max-width:1120px){.dashboard{grid-template-columns:230px 1fr}.sidebar{width:230px}.quick-grid{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.right-stack{grid-template-columns:repeat(3,1fr)}.right-stack .side-card{min-width:0}.welcome-visual{right:20px}}
+@media(max-width:760px){.dashboard{display:block}.sidebar{transform:translateX(-105%);transition:transform .22s ease;width:270px;box-shadow:10px 0 30px rgba(0,0,0,.2)}body.menu-open .sidebar{transform:translateX(0)}.overlay{display:block;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:40;opacity:0;pointer-events:none;transition:.22s}.menu-open .overlay{opacity:1;pointer-events:auto}.main{padding:0 13px}.topbar{margin:0 -13px;padding:0 15px;height:68px}.mobile-menu{display:block}.top-brand-text{font-size:16px}.top-brand-sub{font-size:8px}.top-brand img{width:39px;height:39px}.profile .profile-copy,.profile .chev{display:none}.profile{padding:5px}.top-right{gap:6px}.content{padding-top:15px}.welcome{padding:24px 21px;min-height:235px}.welcome h1{font-size:25px;max-width:85%}.welcome p{font-size:11px;max-width:88%}.connect-mark{right:18px;top:18px}.welcome-visual{opacity:.22;right:-5px}.right-stack{grid-template-columns:1fr}.footer{margin-left:-13px;margin-right:-13px;padding:23px 18px;grid-template-columns:1fr}.copyright{grid-column:auto}.bottom-banner{align-items:flex-start;flex-direction:column}.banner-btn{width:100%;text-align:center}.side-brand img{width:100px}}
+@media(max-width:430px){.quick-grid{grid-template-columns:1fr 1fr;gap:8px}.quick{min-height:133px;padding:12px 7px}.quick-icon{font-size:29px}.quick strong{font-size:10px}.quick small{font-size:8px}.quick-arrow{width:25px;height:25px}.section-title{margin-top:18px}.activity-row{padding:9px 10px}.activity-time{display:none}.welcome h1{font-size:22px}.welcome p{font-size:10px}.welcome{min-height:250px}.top-brand-sub{display:none}.footer{gap:18px}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay"></div>
+<div class="dashboard">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="side-brand">
+      <img src="assets/bawaxict-logo.png" alt="BAWAX ICT Links-Zone">
+      <div class="side-name">BAWAX<span>ICT</span></div>
+      <small>Links-Zone<br>Smart Service, Professional Results</small>
+    </div>
+    <nav class="side-nav">
+      <a class="side-link active" href="#top"><span class="side-icon">⌂</span><span class="side-copy">Dashboard<small>Home</small></span></a>
+      <a class="side-link" href="community-chat.html"><span class="side-icon">♟</span><span class="side-copy">Community<small>Chat, Groups, Forum</small></span></a>
+      <a class="side-link" href="services.html"><span class="side-icon">⚒</span><span class="side-copy">Services<small>Find &amp; Request Services</small></span></a>
+      <a class="side-link" href="institute.html"><span class="side-icon">▰</span><span class="side-copy">Learning<small>Courses &amp; Tutorials</small></span></a>
+      <a class="side-link" href="#marketplace"><span class="side-icon">♧</span><span class="side-copy">Marketplace<small>Products &amp; Deals</small></span></a>
+      <a class="side-link" href="skills.html"><span class="side-icon">▣</span><span class="side-copy">Opportunities<small>Jobs &amp; Gigs</small></span></a>
+      <a class="side-link" href="games.html"><span class="side-icon">⌁</span><span class="side-copy">Entertainment<small>Games &amp; Fun</small></span></a>
+      <a class="side-link" href="#profile"><span class="side-icon">●</span><span class="side-copy">My Profile<small>Account &amp; Settings</small></span></a>
+      <a class="side-link" href="report.html"><span class="side-icon">◉</span><span class="side-copy">Support<small>Help &amp; Assistance</small></span></a>
+    </nav>
+    <div class="side-spacer"></div>
+    <a class="side-link logout" href="#logout" id="logoutBtn"><span class="side-icon">↪</span><span class="side-copy">Logout<small>End your session</small></span></a>
+    <div class="invite">
+      <strong>Invite &amp; Earn</strong><span>Invite friends and earn exciting rewards.</span>
+      <a href="community-chat.html">INVITE NOW</a>
+    </div>
+  </aside>
+
+  <main class="main" id="top">
+    <header class="topbar">
+      <div class="top-left">
+        <button class="mobile-menu" id="menuBtn" aria-label="Open menu">☰</button>
+        <a class="top-brand" href="#top">
+          <img src="assets/bawaxict-logo.png" alt="BAWAX ICT">
+          <span><span class="top-brand-text">BAWAXICT <span>WIFI</span></span><span class="top-brand-sub">Your Gateway To A Digital Community</span></span>
+        </a>
+      </div>
+      <div class="top-right">
+        <a class="bell" href="#notifications" aria-label="Notifications">♧</a>
+        <a class="profile" href="#profile" aria-label="Open profile">
+          <span class="avatar">●</span><span class="profile-copy"><b>Hello, <span id="userName">Member</span> 👋</b><small>Community Member</small></span><span class="chev">⌄</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="layout">
+        <div>
+          <section class="welcome" aria-label="Welcome">
+            <div class="connect-mark">✓</div>
+            <div class="eyebrow">Welcome back, <span id="welcomeName">Member</span>! 👋</div>
+            <h1>Stay Connected.<br>Stay Empowered.</h1>
+            <p>You are connected to the BAWAXICT digital community. Explore services, learn new skills, meet people, get help and discover opportunities — all from one place.</p>
+            <div class="welcome-visual" aria-hidden="true"><i class="node n1"></i><i class="node n2"></i><i class="node n3"></i><i class="node n4"></i><i class="node n5"></i></div>
+          </section>
+
+          <div class="section-title"><div><h2>QUICK ACTIONS</h2><p>Jump straight into the things you use most.</p></div></div>
+          <section class="quick-grid" aria-label="Quick actions">
+            <a class="quick green" href="community-chat.html"><span class="quick-icon">♟</span><strong>ENTER<br>COMMUNITY</strong><small>Chat, Forum, Groups</small><span class="quick-arrow">→</span></a>
+            <a class="quick orange" href="services.html"><span class="quick-icon">⚒</span><strong>FIND<br>SERVICES</strong><small>Trusted Providers</small><span class="quick-arrow">→</span></a>
+            <a class="quick green" href="institute.html"><span class="quick-icon">▰</span><strong>LEARN<br>SKILLS</strong><small>Courses &amp; Tutorials</small><span class="quick-arrow">→</span></a>
+            <a class="quick orange" href="#updates"><span class="quick-icon">⚑</span><strong>COMMUNITY<br>UPDATES</strong><small>News &amp; Announcements</small><span class="quick-arrow">→</span></a>
+          </section>
+
+          <div class="section-title" id="updates"><div><h2>WHAT'S HAPPENING</h2><p>Useful places to continue from here.</p></div><a class="viewall" href="community-chat.html">View all</a></div>
+          <section class="activity" aria-label="What's happening">
+            <a class="activity-row" href="community-chat.html"><span class="activity-icon">♧</span><span class="activity-text"><strong>Community Discussions</strong><span>Join a conversation, ask a question or share useful knowledge.</span></span><span class="activity-time">Community</span><span class="activity-arrow">›</span></a>
+            <a class="activity-row" href="skills.html"><span class="activity-icon orange">●</span><span class="activity-text"><strong>Find Local Skills</strong><span>Discover people offering useful skills and services.</span></span><span class="activity-time">Skill Hub</span><span class="activity-arrow">›</span></a>
+            <a class="activity-row" href="institute.html"><span class="activity-icon">▰</span><span class="activity-text"><strong>Keep Learning</strong><span>Explore ICT training, guides and practical tutorials.</span></span><span class="activity-time">Learning</span><span class="activity-arrow">›</span></a>
+          </section>
+        </div>
+
+        <aside class="right-stack">
+          <section class="side-card">
+            <h3>Connection Status</h3>
+            <div class="status-row"><span class="status-ico">◉</span><span class="status-copy"><small>Status</small><strong>Online</strong></span><span class="check">✓</span></div>
+            <div class="status-row"><span class="status-ico">◷</span><span class="status-copy"><small>Session</small><strong>Active now</strong></span></div>
+            <div class="status-row"><span class="status-ico">▣</span><span class="status-copy"><small>Access</small><strong>Web Community</strong></span></div>
+          </section>
+
+          <section class="side-card access">
+            <h3>Community Access</h3>
+            <div class="access-main"><span class="access-badge">●</span><div><strong>Member Access</strong><p>Community, learning and smart services are available.</p></div></div>
+            <div class="progress" aria-label="Community access"><span></span></div>
+            <div class="access-note">Web platform • Cloud connected</div>
+          </section>
+
+          <section class="side-card" id="profile">
+            <h3>Shortcuts</h3>
+            <div class="shortcut-grid">
+              <a class="shortcut" href="#profile"><i>●</i>My Profile</a>
+              <a class="shortcut" href="community-chat.html"><i>♧</i>Messages</a>
+              <a class="shortcut" href="#notifications"><i>♧</i>Notifications</a>
+              <a class="shortcut" href="report.html"><i>◉</i>Help Center</a>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <section class="bottom-banner" id="marketplace">
+        <div class="banner-copy"><h2>Discover more.<br><span>Do more with FamilyHub.</span></h2><p>Community, skills, learning, services and opportunities — connected in one digital space.</p></div>
+        <a class="banner-btn" href="community-chat.html">EXPLORE COMMUNITY&nbsp; →</a>
+      </section>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-brand"><img src="assets/bawaxict-logo.png" alt="BAWAX ICT"><div><strong>BAWAX<span>ICT</span></strong><small>Links-Zone<br>Smart Service, Professional Results</small><p>Your Gateway To A Digital Community</p></div></div>
+      <div><h4>Contact Us</h4><p>08033252255<br>08086375415<br>bawaxict.admin@gmail.com<br>Ilorin, Kwara State</p></div>
+      <div><h4>Follow Us</h4><div class="socials"><a href="https://wa.me/2348035252255" target="_blank" rel="noopener" aria-label="WhatsApp">W</a><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Telegram">✈</a><a href="#" aria-label="YouTube">▶</a></div><p>We are here to help with questions and support.</p></div>
+      <div class="copyright">© 2025 BAWAXICT Links-Zone. All rights reserved.</div>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var body=document.body, menu=document.getElementById('menuBtn'), overlay=document.getElementById('overlay');
+  function closeMenu(){body.classList.remove('menu-open')}
+  if(menu) menu.addEventListener('click',function(){body.classList.toggle('menu-open')});
+  if(overlay) overlay.addEventListener('click',closeMenu);
+  document.querySelectorAll('.side-link').forEach(function(a){a.addEventListener('click',closeMenu)});
+
+  var params=new URLSearchParams(location.search);
+  var stored='';
+  try{stored=localStorage.getItem('bawaxict_username')||localStorage.getItem('familyhub_username')||''}catch(e){}
+  var name=(params.get('name')||stored||'Member').trim().replace(/[^A-Za-z0-9 _.-]/g,'').slice(0,24)||'Member';
+  document.getElementById('userName').textContent=name;
+  document.getElementById('welcomeName').textContent=name;
+
+  var logout=document.getElementById('logoutBtn');
+  if(logout) logout.addEventListener('click',function(e){
+    e.preventDefault();
+    try{localStorage.removeItem('bawaxict_username');localStorage.removeItem('familyhub_username')}catch(err){}
+    location.href='community-chat.html';
+  });
+})();
+</script>
+</body>
+</html>

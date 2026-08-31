@@ -1,0 +1,51 @@
+BAWAXICT PLATFORM V2.1.1 — DASHBOARD REDESIGN
+================================================
+
+status.html (the post-login dashboard hotspot users land on) was rebuilt
+to match the BAWAXICT_WIFI_Community_Dashboard mockup: sidebar navigation,
+top header with user greeting, welcome/connection hero, quick-action
+cards, connection status + data balance panels, shortcuts, and footer.
+
+WHAT'S LIVE NOW (genuinely working, no backend needed)
+--------------------------------------------------------
+- Username, session time, IP-level data usage — pulled straight from
+  MikroTik's own $(...) hotspot variables, same as before.
+- Data Balance card — reads $(remain-bytes-total) / $(limit-bytes-total)
+  and computes a live progress bar client-side. If the user's profile
+  has no limit set, it correctly shows "Unlimited plan" instead of a
+  broken 0%/NaN bar.
+- "Connected Since" — computed client-side from $(uptime), no backend
+  needed.
+- Every sidebar link and quick-action card points to a REAL existing
+  page in this package (community-chat.html, services.html,
+  institute.html, skills.html, games.html, report.html, rewards.html).
+  Verified with an automated scan: 0 broken references in the whole
+  package.
+- Fully responsive: sidebar becomes an off-canvas drawer (hamburger
+  button) under 760px, columns stack under 980px, grid adjusts further
+  under 480px. Tested at 1440px, 390px, and with the drawer open.
+
+WHAT'S INTENTIONALLY MARKED "COMING SOON" (cloud/backend dependent)
+----------------------------------------------------------------------
+- Marketplace and My Profile nav items — no page exists for these yet,
+  so they're rendered as plain (non-clickable) text with a "Soon" pill
+  instead of a dead link.
+- "What's Happening" activity feed — shows an honest empty-state
+  message rather than fabricated fake posts, since there's no live
+  community-activity backend to pull from yet.
+- Notification bell and the Notifications shortcut — no unread-count
+  badge shown (no real notification system to source a number from).
+- "Invite & Earn" referral box — button is visibly disabled
+  ("Coming Soon"), not a dead link.
+- Social icons in the footer — only WhatsApp is a real link (uses the
+  same number already used elsewhere in the site for ad CTAs).
+  Facebook/Telegram/YouTube are shown for visual completeness but are
+  inert placeholders (not fake hrefs) until real handles exist.
+
+NOTE ON PREVIEWING LOCALLY
+----------------------------
+Opening status.html directly in a browser (outside the router) will
+show the raw $(...) MikroTik variables as literal text — that's
+expected. RouterOS substitutes these at serve time. To see the real
+look, either preview it after logging into the actual hotspot, or ask
+for a version with sample values substituted for a mockup screenshot.

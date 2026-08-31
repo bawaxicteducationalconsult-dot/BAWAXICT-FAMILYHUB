@@ -1,0 +1,7 @@
+BAWAX ICT Game Zone Mobile Fix
+================================
+- Removed all Ludo and Whot game files and visible HTML references.
+- Added mobile viewport and responsive touch-friendly styling.
+- Existing four-game Game Zone structure is preserved.
+- Game pages now avoid horizontal overflow and desktop-only sizing.
+- No game is moved into a separate Game Zone.

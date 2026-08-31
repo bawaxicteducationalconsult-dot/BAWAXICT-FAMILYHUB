@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>BAWAX ICT | BAWAX Runner</title>
+<link rel="stylesheet" href="../css/bawaxict.css">
+<style>
+body{overflow:hidden}
+.arcade-wrap{max-width:560px;margin:0 auto;padding:14px}
+.arcade-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 2px 12px}
+.arcade-top a{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:var(--green)}
+.hud{display:flex;justify-content:space-between;gap:10px;margin-bottom:10px}
+.hud .box{flex:1;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;text-align:center;box-shadow:var(--shadow)}
+.hud .box span{display:block;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.hud .box strong{display:block;font-size:20px;color:var(--dark);margin-top:2px}
+#stage{width:100%;aspect-ratio:16/9;max-height:60vh;background:linear-gradient(180deg,#dff2e7 0%,#eaf6ef 55%,#f4f7f5 100%);border-radius:22px;border:1px solid var(--line);box-shadow:var(--shadow);display:block;touch-action:none}
+.overlay{position:fixed;inset:0;background:rgba(7,59,44,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
+.overlay.show{display:flex}
+.card{background:#fff;border-radius:24px;padding:26px;max-width:340px;width:100%;text-align:center;box-shadow:var(--shadow)}
+.card h2{margin:0 0 6px}
+.card .score{font-size:44px;font-weight:900;color:var(--green);margin:10px 0}
+.btnrow{display:flex;gap:8px;margin-top:16px}
+.btnrow .btn{flex:1}
+.hint{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+</style>
+<style>
+/* BAWAX Mobile Game Zone enhancements */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{-webkit-text-size-adjust:100%;touch-action:manipulation}
+img,canvas,svg,video{max-width:100%;height:auto}
+button,.btn,input,select{min-height:44px;touch-action:manipulation}
+.game-container,.game,.game-wrap,.game-area,.container{max-width:100%;width:100%;box-sizing:border-box}
+@media (max-width:600px){
+  body{padding-left:8px!important;padding-right:8px!important}
+  h1{font-size:clamp(20px,6vw,30px)!important}
+  h2{font-size:clamp(18px,5vw,25px)!important}
+  button,.btn{font-size:15px!important;padding:10px 12px!important}
+  canvas{display:block;margin:0 auto;max-width:100%!important}
+  .game-grid{grid-template-columns:1fr!important}
+  .controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  .controls button{width:100%!important}
+}
+/* Make the game itself fit the phone viewport rather than forcing desktop width. */
+@media (max-width:420px){
+  body{padding-left:5px!important;padding-right:5px!important}
+  .controls{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>  <link rel="stylesheet" href="css/mobile-safe.css">
+</head>
+<body>
+<div class="arcade-wrap">
+<div class="arcade-top">
+<a href="../games.html">← Arcade</a>
+<a class="brand" href="../login.html"><img src="../assets/bawaxict-logo.png" alt="BAWAX ICT" style="width:120px"></a>
+<span style="width:60px"></span>
+</div>
+
+<div class="hud">
+<div class="box"><span>Score</span><strong id="score">0</strong></div>
+<div class="box"><span>Best</span><strong id="best">0</strong></div>
+<div class="box"><span>Coins</span><strong id="coins">0</strong></div>
+</div>
+
+<canvas id="stage"></canvas>
+<p class="hint">Tap, click, or press Space / ↑ to jump. Clear the crates, grab the coins.</p>
+</div>
+
+<div class="overlay show" id="startOverlay">
+<div class="card">
+<h2>🤖 BAWAX Runner</h2>
+<p class="muted">The BAWAX bot won't stop running. Jump the crates, collect coins, and see how far you get before the pace outruns you.</p>
+<button class="btn btn-primary" id="startBtn">Start Game</button>
+</div>
+</div>
+
+<div class="overlay" id="endOverlay">
+<div class="card">
+<h2>Run over!</h2>
+<div class="score" id="finalScore">0</div>
+<p class="muted" id="endMsg">Give it another shot.</p>
+<div class="btnrow">
+<button class="btn btn-outline" id="againBtn">Play Again</button>
+<a class="btn btn-primary" href="../tickets.html">Get a Ticket</a>
+</div>
+</div>
+</div>
+
+<script>
+(function(){
+var canvas=document.getElementById('stage');
+var ctx=canvas.getContext('2d');
+var W,H,scale,groundY;
+
+function resize(){
+  var rect=canvas.getBoundingClientRect();
+  scale=window.devicePixelRatio||1;
+  W=rect.width; H=rect.height;
+  canvas.width=W*scale; canvas.height=H*scale;
+  ctx.setTransform(scale,0,0,scale,0,0);
+  groundY=H-H*0.16;
+}
+window.addEventListener('resize',resize);
+
+var bot={x:0,y:0,w:38,h:42,vy:0,onGround:true};
+var GRAVITY=1900, JUMP_V=-680;
+var obstacles=[], coins=[], clouds=[];
+var speed=260, running=false, score=0, coinCount=0, distance=0, spawnTimer=0, coinTimer=0;
+var best=parseInt(localStorage.getItem('bawax_runner_best')||'0',10)||0;
+document.getElementById('best').textContent=best;
+
+function reset(){
+  bot.y=0; bot.vy=0; bot.onGround=true;
+  obstacles=[]; coins=[]; clouds=[];
+  speed=260; score=0; coinCount=0; distance=0; spawnTimer=0.6; coinTimer=1.2;
+  for(var i=0;i<4;i++) clouds.push({x:Math.random()*W, y:20+Math.random()*60, s:0.6+Math.random()*0.8});
+  document.getElementById('score').textContent=0;
+  document.getElementById('coins').textContent=0;
+}
+
+function jump(){
+  if(!running) return;
+  if(bot.onGround){ bot.vy=JUMP_V; bot.onGround=false; }
+}
+window.addEventListener('keydown',function(e){
+  if(e.key===' '||e.key==='ArrowUp'){ e.preventDefault(); jump(); }
+});
+canvas.addEventListener('mousedown',jump);
+canvas.addEventListener('touchstart',function(e){ e.preventDefault(); jump(); },{passive:false});
+
+function spawnObstacle(){
+  var h=30+Math.random()*26;
+  obstacles.push({x:W+20,y:groundY-h,w:24+Math.random()*14,h:h});
+}
+function spawnCoin(){
+  var y=groundY-60-Math.random()*90;
+  coins.push({x:W+20,y:y,r:10});
+}
+
+function rectsOverlap(a,b){
+  return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;
+}
+
+var last=performance.now();
+function loop(now){
+  var dt=Math.min(0.033,(now-last)/1000); last=now;
+
+  if(running){
+    distance+=speed*dt;
+    speed=260+distance*0.02;
+    if(speed>620) speed=620;
+
+    bot.vy+=GRAVITY*dt;
+    bot.y+=bot.vy*dt;
+    if(bot.y>=0){ bot.y=0; bot.vy=0; bot.onGround=true; }
+
+    spawnTimer-=dt;
+    if(spawnTimer<=0){ spawnObstacle(); spawnTimer=Math.max(0.55,1.3-distance*0.0006); }
+    coinTimer-=dt;
+    if(coinTimer<=0){ spawnCoin(); coinTimer=0.9+Math.random()*1.1; }
+
+    var botBox={x:bot.x, y:groundY-bot.h+bot.y, w:bot.w, h:bot.h};
+
+    for(var i=obstacles.length-1;i>=0;i--){
+      var o=obstacles[i]; o.x-=speed*dt;
+      if(o.x+o.w<-20){ obstacles.splice(i,1); continue; }
+      if(rectsOverlap(botBox,o)){ endGame(); }
+    }
+    for(var c=coins.length-1;c>=0;c--){
+      var cn=coins[c]; cn.x-=speed*dt;
+      if(cn.x<-20){ coins.splice(c,1); continue; }
+      var dx=(botBox.x+botBox.w/2)-cn.x, dy=(botBox.y+botBox.h/2)-cn.y;
+      if(Math.sqrt(dx*dx+dy*dy)<cn.r+20){
+        coins.splice(c,1); coinCount++; score+=15;
+        document.getElementById('coins').textContent=coinCount;
+      }
+    }
+    clouds.forEach(function(cl){ cl.x-=speed*0.15*dt; if(cl.x<-40){ cl.x=W+40; cl.y=20+Math.random()*60; } });
+
+    score=Math.floor(distance/8)+coinCount*15;
+    document.getElementById('score').textContent=score;
+  }
+
+  draw();
+  requestAnimationFrame(loop);
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // clouds
+  ctx.fillStyle='rgba(255,255,255,0.7)';
+  clouds.forEach(function(cl){
+    ctx.beginPath();
+    ctx.ellipse(cl.x,cl.y,26*cl.s,14*cl.s,0,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  // ground
+  ctx.fillStyle='#0b6b4f';
+  ctx.fillRect(0,groundY,W,H-groundY);
+  ctx.fillStyle='#138a67';
+  ctx.fillRect(0,groundY,W,4);
+
+  // obstacles (crates)
+  obstacles.forEach(function(o){
+    ctx.fillStyle='#f28a19';
+    ctx.fillRect(o.x,o.y,o.w,o.h);
+    ctx.strokeStyle='#c96a0d'; ctx.lineWidth=2;
+    ctx.strokeRect(o.x,o.y,o.w,o.h);
+  });
+
+  // coins
+  coins.forEach(function(cn){
+    ctx.fillStyle='#f5a22d';
+    ctx.beginPath(); ctx.arc(cn.x,cn.y,cn.r,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#7a4a06'; ctx.font='11px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('$',cn.x,cn.y+1);
+  });
+
+  // bot (simple mascot: rounded body, two eyes, antenna, legs)
+  var bx=bot.x, by=groundY-bot.h+bot.y;
+  ctx.save();
+  ctx.translate(bx,by);
+  // antenna
+  ctx.strokeStyle='#073b2c'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(bot.w/2,-6); ctx.lineTo(bot.w/2,-16); ctx.stroke();
+  ctx.fillStyle='#f28a19';
+  ctx.beginPath(); ctx.arc(bot.w/2,-18,4,0,Math.PI*2); ctx.fill();
+  // body
+  var grad=ctx.createLinearGradient(0,0,0,bot.h);
+  grad.addColorStop(0,'#138a67'); grad.addColorStop(1,'#0b6b4f');
+  ctx.fillStyle=grad;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(0,0,bot.w,bot.h-8,10); else ctx.rect(0,0,bot.w,bot.h-8);
+  ctx.fill();
+  // eyes
+  ctx.fillStyle='#eaf6ef';
+  ctx.beginPath(); ctx.arc(bot.w*0.34,bot.h*0.32,5,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bot.w*0.68,bot.h*0.32,5,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#073b2c';
+  ctx.beginPath(); ctx.arc(bot.w*0.34,bot.h*0.32,2.4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bot.w*0.68,bot.h*0.32,2.4,0,Math.PI*2); ctx.fill();
+  // legs
+  ctx.fillStyle='#073b2c';
+  ctx.fillRect(4,bot.h-8,10,8);
+  ctx.fillRect(bot.w-14,bot.h-8,10,8);
+  ctx.restore();
+}
+
+function startGame(){
+  resize();
+  bot.x=W*0.14;
+  reset();
+  running=true;
+  document.getElementById('startOverlay').classList.remove('show');
+  document.getElementById('endOverlay').classList.remove('show');
+}
+
+function endGame(){
+  if(!running) return;
+  running=false;
+  if(score>best){ best=score; localStorage.setItem('bawax_runner_best',best); }
+  document.getElementById('best').textContent=best;
+  document.getElementById('finalScore').textContent=score;
+  var msg = score>=400 ? 'Outstanding run!' : score>=150 ? 'Good pace — push further next time.' : 'Keep practicing!';
+  document.getElementById('endMsg').textContent=msg;
+  document.getElementById('endOverlay').classList.add('show');
+}
+
+document.getElementById('startBtn').addEventListener('click',startGame);
+document.getElementById('againBtn').addEventListener('click',startGame);
+
+resize();
+bot.x=W*0.14;
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

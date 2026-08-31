@@ -1,0 +1,2 @@
+FamilyHub Community Chat — mobile composer visibility fix
+Ensures the message textarea and Send button remain visible on small-screen phones. Mobile chat uses a constrained viewport, a flexible scroll area, and a non-shrinking composer; the footer is hidden on mobile so it cannot push the composer below the viewport.
