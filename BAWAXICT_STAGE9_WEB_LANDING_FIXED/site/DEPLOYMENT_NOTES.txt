@@ -1,2 +1,0 @@
-BAWAXICT Pages deployment package.
-Skills API connected to the verified Cloudflare Worker.

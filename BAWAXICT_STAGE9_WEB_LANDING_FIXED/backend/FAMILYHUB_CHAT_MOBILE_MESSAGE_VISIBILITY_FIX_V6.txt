@@ -1,8 +1,0 @@
-FAMILYHUB CHAT MOBILE MESSAGE VISIBILITY FIX V6
-
-Fixes:
-- Server now returns the newly-created public forum message after POST /api/community.
-- Mobile/small-phone sender immediately renders its own successfully sent message.
-- Public message polling now uses the database message ID in its change signature, avoiding same-second timestamp collisions.
-- Existing desktop/tablet chat behavior remains unchanged.
-- The mobile composer remains visible while the newly sent message is scrolled into the visible chat area.
