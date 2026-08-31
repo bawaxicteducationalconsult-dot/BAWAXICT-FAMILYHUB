@@ -1,0 +1,10 @@
+FamilyHub Community Chat flow fix
+
+The Community Chat button now opens:
+http://familyhub.chat:8080/
+
+instead of the obsolete:
+https://chat.bawaxict.edu.net/
+
+The main MikroTik hotspot domain bawaxict.edu.net remains unchanged.
+The username is passed to FamilyHub using the existing preferredName parameter.

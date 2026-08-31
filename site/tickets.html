@@ -1,0 +1,30 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BAWAX ICT | Tickets</title><link rel="stylesheet" href="css/bawaxict.css"><style>
+/* BAWAX mobile-safety enhancements (shared across pages) */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+body{-webkit-text-size-adjust:100%;touch-action:manipulation}
+img,canvas,svg,video{max-width:100%;height:auto}
+button,.btn,input,select{min-height:44px;touch-action:manipulation}
+.game-container,.game,.game-wrap,.game-area,.container{max-width:100%;width:100%;box-sizing:border-box}
+@media (max-width:600px){
+  body{padding-left:8px!important;padding-right:8px!important}
+  h1{font-size:clamp(20px,6vw,30px)!important}
+  h2{font-size:clamp(18px,5vw,25px)!important}
+  button,.btn{font-size:15px!important;padding:10px 12px!important}
+  canvas{display:block;margin:0 auto;max-width:100%!important}
+  .game-grid{grid-template-columns:1fr!important}
+  .controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  .controls button{width:100%!important}
+}
+/* Make the game itself fit the phone viewport rather than forcing desktop width. */
+@media (max-width:420px){
+  body{padding-left:5px!important;padding-right:5px!important}
+  .controls{grid-template-columns:repeat(2,1fr)!important}
+}
+</style>  <link rel="stylesheet" href="css/mobile-safe.css">
+</head><body><div class="page"><header class="topbar"><a class="brand" href="index.html"><img src="assets/bawaxict-logo.png" alt="BAWAX ICT"></a><a class="btn btn-outline" href="index.html">← Login</a></header><section class="ticket-hero section">
+<div class="ticket-hero-copy"><div class="eyebrow">BAWAX ICT INTERNET ACCESS</div><h1>Choose your connection.</h1><p>Select a package that fits your day or month. Online checkout is designed for a later automation phase; local ticket sales remain available now.</p><div class="ticket-badges"><span>⚡ Fast activation</span><span>📶 MikroTik hotspot</span><span>🔒 Secure login</span></div></div>
+</section>
+<section class="section"><div class="section-title"><div><h2>Daily access</h2><p>Simple plans for everyday browsing.</p></div></div><div class="ticket-grid"><article class="ticket-card"><div class="ticket-top"><span class="ticket-tag">POPULAR</span><span>24-hour plan</span></div><h3>1GB</h3><p>Good for messaging, browsing and light social use.</p><div class="ticket-price">₦100 <small>/ plan</small></div><a class="btn btn-primary" href="tel:08086375415">BUY 1GB • Call Desk</a><small class="ticket-note">Online payment will be connected later.</small></article><article class="ticket-card"><div class="ticket-top"><span class="ticket-tag">VALUE</span><span>24-hour plan</span></div><h3>2GB</h3><p>More room for browsing, social media and everyday use.</p><div class="ticket-price">₦200 <small>/ plan</small></div><a class="btn btn-primary" href="tel:08086375415">BUY 2GB • Call Desk</a><small class="ticket-note">Online payment will be connected later.</small></article></div></section>
+<section class="section"><div class="section-title"><div><h2>Monthly access</h2><p>For regular users who want longer access.</p></div></div><div class="ticket-grid"><article class="ticket-card"><div class="ticket-top"><span class="ticket-tag">MONTHLY</span><span>30-day plan</span></div><h3>50GB</h3><p>A balanced monthly package for regular browsing and streaming.</p><div class="ticket-price">₦6,500 <small>/ month</small></div><a class="btn btn-primary" href="tel:08086375415">BUY 50GB • Call Desk</a><small class="ticket-note">Online payment will be connected later.</small></article><article class="ticket-card featured"><div class="ticket-top"><span class="ticket-tag">BEST VALUE</span><span>30-day plan</span></div><h3>100GB</h3><p>Our larger monthly option for heavier everyday usage.</p><div class="ticket-price">₦12,000 <small>/ month</small></div><a class="btn btn-primary" href="tel:08086375415">BUY 100GB • Call Desk</a><small class="ticket-note">Online payment will be connected later.</small></article></div></section>
+<section class="section"><div class="card ticket-next"><div><strong>🚀 Online ticket purchase is coming.</strong><p class="muted">This page is already structured around the packages. Later, the BUY actions can be connected to online payment confirmation and automatic MikroTik ticket delivery without changing the customer-facing package layout.</p></div><a class="btn btn-outline" href="index.html">← Back to Portal</a></div></section>
+</div></body></html>

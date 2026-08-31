@@ -1,0 +1,91 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-store"><title>BAWAX ICT | Report an Issue</title><link rel="stylesheet" href="css/bawaxict.css"><style>
+body{margin:0}
+.wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:#f4f7f6}
+.card{width:min(480px,94vw);background:#fff;border-radius:16px;padding:24px;box-shadow:0 12px 40px #0002}
+.card img{height:44px;display:block;margin:0 auto 8px}
+.card h1{color:#075e54;font-size:22px;margin:8px 0;text-align:center}
+.card p{color:#667781;line-height:1.5;font-size:13px;text-align:center;margin:0 0 16px}
+label{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#53625d;margin:12px 0 6px}
+input,select,textarea{width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccd5d2;border-radius:9px;font-size:15px;outline:0;font-family:inherit}
+textarea{min-height:110px;resize:vertical}
+.btn{width:100%;margin-top:16px;padding:13px;border:0;border-radius:9px;background:#075e54;color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+.btn[disabled]{opacity:.6;cursor:default}
+.back{display:block;text-align:center;margin-top:14px;color:#075e54;text-decoration:none;font-size:13px}
+.err{min-height:18px;color:#b42318;font-size:12px;margin-top:8px;text-align:center}
+.ok{display:none;text-align:center}
+.ok.show{display:block}
+.ok .tick{font-size:44px}
+.ok h2{color:#075e54;margin:8px 0}
+.ok p{color:#444}
+</style><link rel="stylesheet" href="css/mobile-safe.css">
+<script src="config.js"></script></head><body><div class="wrap"><div class="card">
+<div id="form">
+<img src="assets/bawaxict-logo.png" alt="BAWAX ICT">
+<h1 id="pageTitle">Report an Issue</h1>
+<p id="pageIntro">Tell us about a problem — a payment/ticket issue, a WiFi/network problem, someone being abusive in Community Chat, or anything else. This goes straight to the BAWAXICT admin.</p>
+<label>Your name (optional)</label>
+<input id="name" maxlength="24" placeholder="So we can follow up with you">
+<label>What is this about?</label>
+<select id="category">
+<option>Payment / ticket issue</option>
+<option>WiFi / network problem</option>
+<option>Abusive or insulting member in Community Chat</option>
+<option>Free data reward issue</option>
+<option>ICT Institute enrollment</option>
+<option>Smart Service request (printing, ID, home tech, etc.)</option>
+<option>Other</option>
+</select>
+<label>Details</label>
+<textarea id="details" maxlength="2000" placeholder="Describe what happened…"></textarea>
+<button class="btn" id="send">Send</button>
+<div class="err" id="err"></div>
+<a class="back" href="index.html">← Return to Portal</a>
+</div>
+<div class="ok" id="ok">
+<div class="tick">✅</div>
+<h2>Report sent</h2>
+<p>Thanks — the BAWAXICT admin has been notified and will follow up.</p>
+<a class="back" href="index.html">← Return to Portal</a>
+</div>
+</div></div>
+<script>(function(){
+const base=(window.BAWAXICT_CONFIG&&window.BAWAXICT_CONFIG.familyHubApiBase)||'/api/familyhub/';
+const nameEl=document.getElementById('name'),catEl=document.getElementById('category'),detEl=document.getElementById('details'),
+      send=document.getElementById('send'),err=document.getElementById('err'),form=document.getElementById('form'),ok=document.getElementById('ok'),
+      titleEl=document.getElementById('pageTitle'),introEl=document.getElementById('pageIntro');
+// Enrollment/service requests reuse this same form + admin inbox, but shouldn't
+// look like a complaint form when someone arrives from Institute or Services.
+const topic=new URLSearchParams(location.search).get('topic');
+if(topic==='institute'){
+  document.title='BAWAX ICT | Enroll — ICT Institute';
+  titleEl.textContent='Enroll at the ICT Institute';
+  introEl.textContent="Tell us which class you're interested in and how to reach you — the admin will follow up with class times and fees.";
+  catEl.value='ICT Institute enrollment';
+  detEl.placeholder='Which class are you interested in? (e.g. Computer Training, Graphics & Digital Skills…)';
+}else if(topic==='services'){
+  document.title='BAWAX ICT | Request a Service';
+  titleEl.textContent='Request a Smart Service';
+  introEl.textContent="Tell us what you need — printing, ID/registration, home technology, etc. — and how to reach you. The admin will follow up.";
+  catEl.value='Smart Service request (printing, ID, home tech, etc.)';
+  detEl.placeholder='What do you need done?';
+}
+send.onclick=function(){
+  const details=detEl.value.trim();
+  if(!details){err.textContent='Please describe the problem before sending.';return}
+  send.disabled=true;send.textContent='Sending…';err.textContent='';
+  const x=new XMLHttpRequest();
+  x.open('POST',base+'api/report',true);
+  x.setRequestHeader('Content-Type','application/json');
+  x.timeout=8000;
+  x.onreadystatechange=function(){
+    if(x.readyState!==4)return;
+    let d={};try{d=JSON.parse(x.responseText||'{}')}catch(e){}
+    if(x.status>=200&&x.status<300){form.style.display='none';ok.classList.add('show')}
+    else{err.textContent=d.error||'Unable to send your report. Please try again.';send.disabled=false;send.textContent='Send to admin'}
+  };
+  x.onerror=function(){err.textContent='Unable to reach the report service. Check your connection and try again.';send.disabled=false;send.textContent='Send to admin'};
+  x.ontimeout=x.onerror;
+  x.send(JSON.stringify({name:nameEl.value.trim(),category:catEl.value,message:details}));
+};
+})();</script>
+</body></html>

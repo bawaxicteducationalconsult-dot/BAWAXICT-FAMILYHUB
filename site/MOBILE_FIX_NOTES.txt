@@ -1,0 +1,11 @@
+Mobile screen fix applied to the working BAWAX ICT hotspot package.
+
+Purpose:
+- Prevent bottom-of-page content from being trapped behind fixed viewport heights.
+- Allow vertical scrolling on small phones.
+- Respect phone safe-area insets.
+- Keep existing desktop/tablet layout and functionality.
+- No Python server or MikroTik configuration was changed.
+
+Test on a small phone first. If one specific page still clips, identify that page
+and it can be tuned individually without changing the rest of the project.

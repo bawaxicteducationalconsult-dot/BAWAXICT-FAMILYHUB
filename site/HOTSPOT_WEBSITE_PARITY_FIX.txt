@@ -1,0 +1,56 @@
+BAWAXICT — HOTSPOT/WEBSITE PARITY FIX
+========================================
+
+Purpose: make the hotspot landing page (login.html) match what's
+actually live at https://bawaxict.pages.dev, so hotspot users and
+outside visitors see the same portal. The hotspot version keeps real
+MikroTik login authentication (CHAP/ticket); the public web version
+has no captive-portal backend behind it, so its login form is
+informational only until the two are linked via cloud hosting — that
+part is unchanged/expected, not something this fix addresses.
+
+WHAT CHANGED
+--------------
+1. login.html and index.html were replaced with the richer
+   single-column design (AI search card, quick-link hub cards,
+   Notification Rules / Skill Hub accordions, Community Advert Zone,
+   Popular Packages, footer) — this matches the content actually live
+   on bawaxict.pages.dev. The previous sidebar-dashboard version of
+   login.html in this package had diverged from what's live and has
+   been replaced.
+
+2. CORRECTION (see below) — I initially re-added the De-Bawax
+   Multibiz advert because its image file was physically present in
+   assets/ads/, and wrongly assumed that meant it should go live
+   again. You clarified that De-Bawax was intentionally removed
+   before this file was handed over — the image was just left in the
+   folder, not meant to be used. This has been reverted: the ad card
+   is removed again from login.html, index.html, and radvert.html
+   (back to a single static ad), and admin/README.txt now explicitly
+   notes that debawax-drinks-flyer.jpg is an intentionally unused
+   asset, so this doesn't get re-added by mistake again later.
+
+3. Chat-server hostname fixed across the board. Your own
+   admin/README.txt and mikrotik/SETUP.txt both document the real
+   FamilyHub server as http://familyhub.chat:8080/ — but ai.html,
+   community-chat.html, report.html, rewards.html, and login.html/
+   index.html were all still hardcoding the obsolete
+   https://chat.bawaxict.edu.net/. All five now point to
+   http://familyhub.chat:8080/, consistent with your own
+   documentation.
+
+STILL OPEN — ROUTER-SIDE CONFIG NOT YET UPDATED
+--------------------------------------------------
+I did NOT touch mikrotik/BAWAXICT_MikroTik_FamilyHub_PRODUCTION_V2_FIXED.rsc.
+It still only has a static DNS entry + walled-garden rule for the OLD
+chat.bawaxict.edu.net (→ 192.168.6.147, port 8080) — there is no
+familyhub.chat DNS entry or walled-garden rule in it at all, even
+though that's the hostname all the HTML now calls. Community Chat, AI,
+Report, and Rewards will not actually reach the FamilyHub server until
+the router config is updated to match — specifically:
+  - a static DNS entry: familyhub.chat → 192.168.6.191
+  - a walled-garden rule allowing dst-host=familyhub.chat dst-port=8080
+    (so it works pre-ticket, same as the existing rule's intent)
+This wasn't changed automatically since it's a live router config
+change — back up the router first and test in a maintenance window,
+per your own mikrotik/SETUP.txt guidance.

@@ -1,0 +1,15 @@
+BAWAXICT PLATFORM V2.1 CLEANUP
+
+Purpose:
+This version keeps the refined V2 structure and prepares it for the next development stage.
+
+Cleanup goals:
+- Preserve public web and MikroTik structure
+- Remove unnecessary promotional elements
+- Keep backend/API areas untouched
+- Improve consistency and mobile readiness
+- Prepare for future cloud integration
+
+Next stage:
+V2.2 - Connect platform features together:
+Community, Profiles, Services, Reviews, Marketplace and Income systems.

@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Cache-Control" content="no-store"><title>BAWAX ICT | Message the Admin</title><link rel="stylesheet" href="css/bawaxict.css">
+<style>
+.status-hero{background:linear-gradient(135deg,#063c2c,#0b6b4f 60%,#15906d)}
+.form-note{font-size:11px;color:var(--muted);margin-top:6px}
+.status-pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.status-pill{font-size:11px;font-weight:800;border-radius:999px;padding:6px 12px;background:var(--soft);color:var(--green)}
+.status-pill.warn{background:#fff7e9;color:#775015}
+.status-pill.bad{background:#ffe1de;color:#7a1f18}
+.thread-box{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:14px;padding:12px;background:#f8fbf9;margin:12px 0}
+.thread-empty{text-align:center;color:var(--muted);font-size:12px;padding:14px}
+.bubble{margin-bottom:9px}
+.bubble .txt{display:inline-block;max-width:85%;padding:9px 12px;border-radius:12px;font-size:12px;line-height:1.5}
+.bubble.admin{text-align:left}
+.bubble.admin .txt{background:#fff;border:1px solid var(--line)}
+.bubble.user{text-align:right}
+.bubble.user .txt{background:#e7f5ee}
+.privacy-note{background:#eef5f1;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:11px;color:var(--muted);margin-top:10px}
+</style>
+  <link rel="stylesheet" href="css/mobile-safe.css">
+</head><body>
+<div class="page">
+<header class="topbar"><a class="brand" href="index.html"><img src="assets/bawaxict-logo.png" alt="BAWAX ICT"></a><a class="btn btn-outline" href="skills.html">← Back to Skill Hub</a></header>
+
+<main class="hero-main status-hero" style="padding:26px">
+<div class="eyebrow">SKILL HUB — PRIVATE</div>
+<h1 style="font-size:clamp(24px,4.5vw,36px)">Message the Admin</h1>
+<p>This page is private to your registration — other Skill Hub visitors cannot see it or your conversation. Use it to answer the admin's verification questions and to send proof of your ₦1,500 activation fee.</p>
+</main>
+
+<section class="section">
+<div class="card">
+<div class="form-grid">
+<div class="field"><label>Reference Code</label><input id="ref" type="text" placeholder="e.g. SKL-1A2B3C"></div>
+<div class="field"><label>WhatsApp Number</label><input id="whatsapp" type="text" placeholder="Same number you registered with"></div>
+</div>
+
+<div class="field full">
+<label>Payment reference / transaction ID (optional)</label>
+<input id="proof" type="text" placeholder="e.g. Opay TXN 84920, or 'sent via bank transfer 22 Aug'">
+</div>
+<p class="form-note">We can't accept image uploads here yet — send your ₦1,500 payment screenshot straight to the admin's WhatsApp, then paste the reference/transaction ID above so it can be matched to your listing.</p>
+
+<div class="field full">
+<label>Your Message</label>
+<input id="composeMsg" type="text" placeholder="e.g. Hi, here's my payment reference. Please let me know if you need anything else.">
+</div>
+
+<button class="btn btn-primary" id="sendBtn" type="button">Send Message to Admin</button>
+<div id="sendMsg" class="form-note"></div>
+
+<div id="statusArea" style="display:none;margin-top:18px">
+<div class="status-pill-row" id="statusPills"></div>
+<div id="threadBox" class="thread-box"><div class="thread-empty">No messages yet.</div></div>
+<a href="#" id="refreshLink" class="form-note" style="color:var(--green);font-weight:800">🔄 Refresh conversation</a>
+</div>
+
+<div class="privacy-note">🔒 Only someone with this exact reference code and WhatsApp number can view or send messages here. Keep your reference code private.</div>
+</div>
+</section>
+
+<div class="footer"><span><b>BAWAX ICT</b> Smart Service</span><span>Skill Hub — private applicant messaging.</span></div>
+</div>
+
+<script>
+(function(){
+  var CHAT_BASE='https://bawaxict-skills-api.bawaxict-educationalconsult.workers.dev';
+  var refEl=document.getElementById('ref'), waEl=document.getElementById('whatsapp'),
+      proofEl=document.getElementById('proof'), composeEl=document.getElementById('composeMsg'),
+      sendBtn=document.getElementById('sendBtn'), sendMsg=document.getElementById('sendMsg'),
+      statusArea=document.getElementById('statusArea'), statusPills=document.getElementById('statusPills'),
+      threadBox=document.getElementById('threadBox'), refreshLink=document.getElementById('refreshLink');
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+  function api(path,opt){
+    opt=opt||{};
+    return new Promise(function(res,rej){
+      var x=new XMLHttpRequest();
+      x.open(opt.method||'GET',CHAT_BASE+path,true);
+      x.timeout=6000;
+      x.setRequestHeader('Accept','application/json');
+      if((opt.method||'GET')==='POST')x.setRequestHeader('Content-Type','application/json');
+      x.onreadystatechange=function(){
+        if(x.readyState!==4)return;
+        var d={}; try{d=JSON.parse(x.responseText||'{}')}catch(e){}
+        if(x.status>=200&&x.status<300)res(d); else rej(new Error(d.error||'Request failed'));
+      };
+      x.onerror=function(){rej(new Error('Cannot reach server'))};
+      x.ontimeout=function(){rej(new Error('Server not reachable right now'))};
+      x.send(opt.body||null);
+    });
+  }
+
+  // Pre-fill from ?ref=...&whatsapp=... if the person arrived straight from registration.
+  var qs=new URLSearchParams(location.search);
+  if(qs.get('ref'))refEl.value=qs.get('ref');
+  if(qs.get('whatsapp'))waEl.value=qs.get('whatsapp');
+
+  function renderThread(data){
+    var s=data.skill||{};
+    statusPills.innerHTML='';
+    var statusCls=s.status==='verified'?'':(s.status==='rejected'?'bad':'warn');
+    var statusText=s.status==='verified'?'✅ Verified':(s.status==='rejected'?'Not accepted':'⏳ Pending review');
+    statusPills.innerHTML='<span class="status-pill '+statusCls+'">'+statusText+'</span>'+
+      '<span class="status-pill '+(s.feePaid?'':'warn')+'">'+(s.feePaid?'₦1,500 fee received':'₦1,500 fee not yet received')+'</span>';
+    var msgs=data.messages||[];
+    if(!msgs.length){threadBox.innerHTML='<div class="thread-empty">No messages yet. Send one above to start the conversation.</div>';}
+    else{
+      threadBox.innerHTML=msgs.map(function(m){
+        var mine=m.sender==='user';
+        return '<div class="bubble '+(mine?'user':'admin')+'"><span class="txt">'+esc(m.message)+'</span></div>';
+      }).join('');
+      threadBox.scrollTop=threadBox.scrollHeight;
+    }
+    statusArea.style.display='block';
+  }
+
+  function loadThread(quiet){
+    var ref=refEl.value.trim(), wa=waEl.value.trim();
+    if(!ref||!wa)return;
+    api('/api/skills/thread?ref='+encodeURIComponent(ref)+'&whatsapp='+encodeURIComponent(wa)).then(function(r){
+      renderThread(r);
+    }).catch(function(e){
+      if(!quiet){sendMsg.textContent=e.message||'Could not find your listing.';sendMsg.style.color='#b7372d'}
+    });
+  }
+
+  refreshLink.addEventListener('click',function(e){e.preventDefault();loadThread(false)});
+
+  sendBtn.addEventListener('click',function(){
+    var ref=refEl.value.trim(), wa=waEl.value.trim();
+    var proof=proofEl.value.trim(), text=composeEl.value.trim();
+    if(!ref||!wa){sendMsg.textContent='Enter your reference code and WhatsApp number.';sendMsg.style.color='#b7372d';return}
+    if(!text){sendMsg.textContent='Type a message before sending.';sendMsg.style.color='#b7372d';return}
+    var fullMessage=proof?('📎 Payment proof: '+proof+'\n\n'+text):text;
+    sendMsg.textContent='Sending…';sendMsg.style.color='';
+    api('/api/skills/thread',{method:'POST',body:JSON.stringify({ref:ref,whatsapp:wa,message:fullMessage})}).then(function(){
+      sendMsg.textContent='✅ Sent to the admin.';sendMsg.style.color='#0b6b4f';
+      composeEl.value='';proofEl.value='';
+      loadThread(true);
+    }).catch(function(e){sendMsg.textContent=e.message||'Could not send. Please try again.';sendMsg.style.color='#b7372d'});
+  });
+
+  // If we already have both fields (arrived via link after registration), show the
+  // conversation area quietly without requiring the person to click anything first.
+  if(refEl.value&&waEl.value)loadThread(true);
+})();
+</script>
+</body></html>

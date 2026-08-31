@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-store">
+<title>BAWAX ICT | Arcade Zone</title>
+<link rel="stylesheet" href="css/bawaxict.css">
+<style>
+.arcade-hero{background:linear-gradient(135deg,#063c2c,#0b6b4f 60%,#15906d)}
+.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:16px}
+.game-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:var(--shadow);text-align:left;display:flex;flex-direction:column;gap:10px}
+.game-thumb{height:120px;border-radius:16px;display:grid;place-items:center;font-size:44px;color:#fff}
+.thumb-coins{background:linear-gradient(135deg,#f28a19,#f5a22d)}
+.thumb-runner{background:linear-gradient(135deg,#0b6b4f,#138a67)}
+.thumb-snake{background:linear-gradient(135deg,#166534,#22c55e)}
+.thumb-tank{background:linear-gradient(135deg,#334155,#0f172a)}
+.game-card h3{margin:0;font-size:18px}
+.game-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.55;flex:1}
+.hi{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:800}
+@media(max-width:560px){.game-grid{grid-template-columns:1fr}}
+</style>
+
+<style id="BAWAX Mobile Game Zone landing fixes">
+html,body{max-width:100%;overflow-x:hidden}
+@media(max-width:600px){
+  .games-grid,.game-grid,.games-container,.cards,.grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .game-card,.card{min-width:0!important;width:100%!important}
+  .game-card a,.card a{display:block;min-height:120px}
+  .game-card h3,.card h3{font-size:16px!important}
+  .game-card p,.card p{font-size:12px!important}
+}
+@media(max-width:380px){
+  .games-grid,.game-grid,.games-container,.cards,.grid{grid-template-columns:1fr!important}
+}
+</style>
+  <link rel="stylesheet" href="css/mobile-safe.css">
+</head>
+<body>
+<div class="page">
+<div class="topbar">
+<a class="brand" href="index.html"><img src="assets/bawaxict-logo.png" alt="BAWAX ICT"></a>
+<div style="display:flex;align-items:center;gap:10px">
+<div class="status-pill"><span class="dot"></span>No ticket needed to play</div>
+<a class="btn btn-outline" href="index.html">← Back to Portal</a>
+</div>
+</div>
+
+<div class="hero-main arcade-hero" style="padding:28px">
+<div class="eyebrow">BAWAX ICT ARCADE</div>
+<h1 style="font-size:clamp(28px,5vw,46px)">Play while you wait</h1>
+<p>Four quick games, right here on the hotspot — no internet ticket required. High scores are bragging rights only for now, but keep an eye out: prizes and advert shout-outs are coming soon.</p>
+</div>
+
+<div class="section">
+<div class="section-title"><h2>Choose a game</h2><p>Both work great on mobile — tap or use arrow keys.</p></div>
+<div class="game-grid">
+
+<a class="game-card" href="games/chaser.html">
+<div class="game-thumb thumb-coins">🪙</div>
+<h3>Ticket Chaser</h3>
+<p>Catch falling tickets and coins before they hit the ground. Fast, simple, one-minute rounds — how high can you score?</p>
+<span class="hi">▶ Play now</span>
+</a>
+
+<a class="game-card" href="games/runner.html">
+<div class="game-thumb thumb-runner">🤖</div>
+<h3>BAWAX Runner</h3>
+<p>Guide the BAWAX bot on an endless dash — jump obstacles, grab coins, and keep the run alive as the pace picks up.</p>
+<span class="hi">▶ Play now</span>
+</a>
+
+<a class="game-card" href="games/snake.html">
+<div class="game-thumb thumb-snake">🐍</div>
+<h3>BAWAX Snake</h3>
+<p>Guide the growing snake, eat the targets, and avoid the walls and your own tail. Works with touch, swipe, and arrow keys.</p>
+<span class="hi">▶ Play now</span>
+</a>
+
+<a class="game-card" href="games/tank.html">
+<div class="game-thumb thumb-tank">🛡️</div>
+<h3>BAWAX Tank Arena</h3>
+<p>Move your tank, aim, and destroy incoming targets. A compact action game designed to work smoothly on phones.</p>
+<span class="hi">▶ Play now</span>
+</a>
+
+</div>
+</div>
+
+<div class="section">
+<div class="section-title"><h2>Already connected?</h2></div>
+<nav class="navcards">
+<a class="navcard" href="community-chat.html"><div class="ico">💬</div><strong>Community Chat</strong><span>Talk locally without buying internet.</span></a>
+<a class="navcard" href="tickets.html"><div class="ico">🎟️</div><strong>Internet Tickets</strong><span>Compare access packages.</span></a>
+<a class="navcard" href="index.html"><div class="ico">🏠</div><strong>Portal Home</strong><span>Back to the main hotspot page.</span></a>
+</nav>
+</div>
+
+<div class="footer"><span><b>BAWAX ICT</b> Smart Service</span><span>Arcade Zone — for fun, on the house.</span></div>
+</div>
+
+<section id="bawax-new-games" style="margin:24px auto;max-width:1100px;padding:10px">
+<h2 style="text-align:center">🎮 More Games</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+
+
+</div></section>
+
+</body>
+</html>
