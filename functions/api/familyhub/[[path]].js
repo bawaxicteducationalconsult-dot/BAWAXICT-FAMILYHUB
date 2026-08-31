@@ -2,16 +2,12 @@
 export async function onRequest(context) {
   const url = new URL(context.request.url);
 
-  // D1 is now available to this Worker.
-  // We are keeping the existing FamilyHub backend as the fallback
-  // while we migrate features one at a time.
+  // D1 is available to this deployed Pages Function.
   const db = context.env.DB;
 
   // ------------------------------------------------------------
-  // TEMPORARY D1 CHECK
+  // D1 CONNECTION CHECK
   // ------------------------------------------------------------
-  // This does NOT change the existing FamilyHub behaviour yet.
-  // It simply confirms that the DB binding is available.
   if (url.pathname === '/api/familyhub/__d1_check') {
     if (!db) {
       return new Response(
@@ -45,7 +41,8 @@ export async function onRequest(context) {
   // ------------------------------------------------------------
   // EXISTING FAMILYHUB PROXY
   // ------------------------------------------------------------
-  // Everything else continues to use the existing backend for now.
+  // All existing FamilyHub routes continue to use the
+  // existing backend until we migrate them individually.
   const configured = (context.env.FAMILYHUB_ORIGIN || '').trim();
 
   if (!configured) {
