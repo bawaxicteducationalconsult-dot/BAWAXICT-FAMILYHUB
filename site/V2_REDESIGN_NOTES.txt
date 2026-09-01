@@ -1,6 +1,0 @@
-BAWAXICT PLATFORM V2 REDESIGN
-- Based on original BAWAXICT_Pages_FINAL_With_Skills_API
-- Removed Debawax advertising direction
-- Kept MikroTik variables and existing modules
-- Prepared for unified public web + hotspot ecosystem
-- Backend-dependent modules remain connected/ready
